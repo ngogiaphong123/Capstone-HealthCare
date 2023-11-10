@@ -1,8 +1,9 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
     provider = "prisma-client-js"
+}
+
+generator dbml {
+    provider = "prisma-dbml-generator"
 }
 
 datasource db {
@@ -11,7 +12,175 @@ datasource db {
 }
 
 model User {
-    id    Int     @id @default(autoincrement())
-    email String  @unique
-    name  String?
+    id        String @id @default(uuid())
+    email     String @unique
+    password  String
+    firstName String 
+    lastName  String
+    fullName  String
+
+    role    Role     @default(PATIENT)
+    patient Patient?
+    doctor  Doctor?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Patient {
+    id String @id @default(uuid())
+
+    user          User           @relation(fields: [userId], references: [id])
+    userId        String         @unique
+    healthRecords HealthRecord[]
+
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+    appointments  Appointment[]
+    prescriptions Prescription[]
+}
+
+model HealthRecord {
+    id String @id @default(uuid())
+
+    patient   Patient @relation(fields: [patientId], references: [id])
+    patientId String
+
+    healthRecordConditions HealthRecordCondition[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Condition {
+    id          String        @id @default(uuid())
+    name        String
+    description String
+    type        ConditionType
+
+    healthRecordConditions HealthRecordCondition[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model HealthRecordCondition {
+    id String @id @default(uuid())
+
+    healthRecord   HealthRecord @relation(fields: [healthRecordId], references: [id])
+    healthRecordId String
+
+    condition   Condition @relation(fields: [conditionId], references: [id])
+    conditionId String
+
+    doctor   Doctor? @relation(fields: [doctorId], references: [id])
+    doctorId String? @unique
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+enum ConditionType {
+    DISEASE
+    ALLERGY
+    SYMPTOM
+    PAST_SURGERY
+    FAMILY_HISTORY
+    OTHER
+}
+
+model DoctorSpecialty {
+    id      String   @id @default(uuid())
+    name    String
+    doctors Doctor[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([name])
+}
+
+model Doctor {
+    id String @id @default(uuid())
+
+    user        User            @relation(fields: [userId], references: [id])
+    userId      String          @unique
+    specialty   DoctorSpecialty @relation(fields: [specialtyId], references: [id])
+    specialtyId String          @unique
+
+    appointments          Appointment[]
+    prescriptions         Prescription[]
+    HealthRecordCondition HealthRecordCondition[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Appointment {
+    id   String   @id @default(uuid())
+    date DateTime
+
+    status       Status
+    patient      Patient       @relation(fields: [patientId], references: [id])
+    patientId    String
+    doctor       Doctor        @relation(fields: [doctorId], references: [id])
+    doctorId     String
+    prescription Prescription?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Prescription {
+    id         String @id @default(uuid())
+    conclusion String
+    note       String @default("")
+
+    patient               Patient                @relation(fields: [patientId], references: [id])
+    patientId             String
+    doctor                Doctor                 @relation(fields: [doctorId], references: [id])
+    doctorId              String
+    medicinePrescriptions MedicinePrescription[]
+    appointment           Appointment            @relation(fields: [appointmentId], references: [id])
+    appointmentId         String                 @unique
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Medicine {
+    id   String @id @default(uuid())
+    name String
+
+    medicinePrescriptions MedicinePrescription[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model MedicinePrescription {
+    medicineId     String
+    prescriptionId String
+    quantity       Int
+
+    medicine     Medicine     @relation(fields: [medicineId], references: [id])
+    prescription Prescription @relation(fields: [prescriptionId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@id([medicineId, prescriptionId])
+}
+
+enum Role {
+    PATIENT
+    DOCTOR
+}
+
+enum Status {
+    PENDING
+    ACCEPTED
+    REJECTED
+    CANCELED
+    FINISHED
 }

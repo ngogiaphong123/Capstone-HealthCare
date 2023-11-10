@@ -1,0 +1,180 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table User {
+  id String [pk]
+  email String [unique, not null]
+  password String [not null]
+  firstName String [not null]
+  lastName String [not null]
+  fullName String [not null]
+  role Role [not null, default: 'PATIENT']
+  patient Patient
+  doctor Doctor
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Patient {
+  id String [pk]
+  user User [not null]
+  userId String [unique, not null]
+  healthRecords HealthRecord [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  appointments Appointment [not null]
+  prescriptions Prescription [not null]
+}
+
+Table HealthRecord {
+  id String [pk]
+  patient Patient [not null]
+  patientId String [not null]
+  healthRecordConditions HealthRecordCondition [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Condition {
+  id String [pk]
+  name String [not null]
+  description String [not null]
+  type ConditionType [not null]
+  healthRecordConditions HealthRecordCondition [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table HealthRecordCondition {
+  id String [pk]
+  healthRecord HealthRecord [not null]
+  healthRecordId String [not null]
+  condition Condition [not null]
+  conditionId String [not null]
+  doctor Doctor
+  doctorId String [unique]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table DoctorSpecialty {
+  id String [pk]
+  name String [unique, not null]
+  doctors Doctor [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Doctor {
+  id String [pk]
+  user User [not null]
+  userId String [unique, not null]
+  specialty DoctorSpecialty [not null]
+  specialtyId String [unique, not null]
+  appointments Appointment [not null]
+  prescriptions Prescription [not null]
+  HealthRecordCondition HealthRecordCondition [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Appointment {
+  id String [pk]
+  date DateTime [not null]
+  status Status [not null]
+  patient Patient [not null]
+  patientId String [not null]
+  doctor Doctor [not null]
+  doctorId String [not null]
+  prescription Prescription
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Prescription {
+  id String [pk]
+  conclusion String [not null]
+  note String [not null, default: '']
+  patient Patient [not null]
+  patientId String [not null]
+  doctor Doctor [not null]
+  doctorId String [not null]
+  medicinePrescriptions MedicinePrescription [not null]
+  appointment Appointment [not null]
+  appointmentId String [unique, not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Medicine {
+  id String [pk]
+  name String [not null]
+  medicinePrescriptions MedicinePrescription [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table MedicinePrescription {
+  medicineId String [not null]
+  prescriptionId String [not null]
+  quantity Int [not null]
+  medicine Medicine [not null]
+  prescription Prescription [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+
+  indexes {
+    (medicineId, prescriptionId) [pk]
+  }
+}
+
+Enum ConditionType {
+  DISEASE
+  ALLERGY
+  SYMPTOM
+  PAST_SURGERY
+  FAMILY_HISTORY
+  OTHER
+}
+
+Enum Role {
+  PATIENT
+  DOCTOR
+}
+
+Enum Status {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELED
+  FINISHED
+}
+
+Ref: Patient.userId - User.id
+
+Ref: HealthRecord.patientId > Patient.id
+
+Ref: HealthRecordCondition.healthRecordId > HealthRecord.id
+
+Ref: HealthRecordCondition.conditionId > Condition.id
+
+Ref: HealthRecordCondition.doctorId > Doctor.id
+
+Ref: Doctor.userId - User.id
+
+Ref: Doctor.specialtyId > DoctorSpecialty.id
+
+Ref: Appointment.patientId > Patient.id
+
+Ref: Appointment.doctorId > Doctor.id
+
+Ref: Prescription.patientId > Patient.id
+
+Ref: Prescription.doctorId > Doctor.id
+
+Ref: Prescription.appointmentId - Appointment.id
+
+Ref: MedicinePrescription.medicineId > Medicine.id
+
+Ref: MedicinePrescription.prescriptionId > Prescription.id
