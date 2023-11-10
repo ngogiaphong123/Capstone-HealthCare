@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { JwtService } from '@nestjs/jwt'
-import { LoginDto, RefreshTokenDto } from './dto'
+import { LoginDto, RefreshTokenDto, RegisterDto } from './dto'
 import { exceptionHandler } from '../common/exception'
 import * as argon2 from 'argon2'
 import { Payload } from './types/payload'
 import { AuthError, JwtError } from '../common/errors'
-import { RegisterDto } from './dto/register.dto'
 
 @Injectable()
 export class AuthService {
