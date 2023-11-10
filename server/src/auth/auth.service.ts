@@ -15,6 +15,18 @@ export class AuthService {
             const { phone, password } = dto
             const existedUser = await this.prisma.user.findUnique({
                 where: { phone },
+                select: {
+                    id: true,
+                    phone: true,
+                    role: true,
+                    avatar: true,
+                    fullName: true,
+                    address: true,
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                    password: true,
+                },
             })
             if (existedUser) {
                 throw new Error(AuthError.USER_PHONE_ALREADY_EXISTS)
@@ -35,11 +47,11 @@ export class AuthService {
             }
             const tokens = await this.generateTokens(payload)
             await this.updateTokens(user.id, tokens)
-
+            const { password: _, ...rest } = user
             return {
                 ...tokens,
                 user: {
-                    ...payload,
+                    ...rest,
                 },
             }
         } catch (error) {
@@ -52,6 +64,18 @@ export class AuthService {
             const { phone, password } = dto
             const user = await this.prisma.user.findUnique({
                 where: { phone },
+                select: {
+                    id: true,
+                    phone: true,
+                    role: true,
+                    avatar: true,
+                    fullName: true,
+                    address: true,
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                    password: true,
+                },
             })
             if (!user) {
                 throw new Error(AuthError.USER_INVALID_CREDENTIALS)
@@ -71,11 +95,12 @@ export class AuthService {
             }
             const tokens = await this.generateTokens(payload)
             await this.updateTokens(user.id, tokens)
+            const { password: _, ...rest } = user
 
             return {
                 ...tokens,
                 user: {
-                    ...payload,
+                    ...rest,
                 },
             }
         } catch (error) {
@@ -90,6 +115,11 @@ export class AuthService {
                 phone: true,
                 role: true,
                 avatar: true,
+                fullName: true,
+                address: true,
+                firstName: true,
+                lastName: true,
+                email: true,
             },
         })
         return user
