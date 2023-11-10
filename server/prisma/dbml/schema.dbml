@@ -4,11 +4,16 @@
 
 Table User {
   id String [pk]
-  email String [unique, not null]
+  phone String [unique, not null]
+  email String [unique]
   password String [not null]
-  firstName String [not null]
-  lastName String [not null]
-  fullName String [not null]
+  firstName String
+  lastName String
+  fullName String
+  address String
+  avatar String [not null]
+  accessToken String
+  refreshToken String
   role Role [not null, default: 'PATIENT']
   patient Patient
   doctor Doctor

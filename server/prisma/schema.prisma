@@ -12,15 +12,17 @@ datasource db {
 }
 
 model User {
-    id        String @id @default(uuid())
-    phone     String @unique
-    email     String @unique
-    password  String
-    firstName String
-    lastName  String
-    fullName  String
-    address   String
-    avatar    String
+    id           String  @id @default(uuid())
+    phone        String  @unique
+    email        String? @unique
+    password     String
+    firstName    String?
+    lastName     String?
+    fullName     String?
+    address      String? @db.Text
+    avatar       String  @db.Text
+    accessToken  String? @db.Text
+    refreshToken String? @db.Text
 
     role    Role     @default(PATIENT)
     patient Patient?

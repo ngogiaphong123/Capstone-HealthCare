@@ -9,7 +9,7 @@ export class CloudinaryService {
         return new Promise<CloudinaryResponse>((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
                 {
-                    folder: 'Nestjs',
+                    folder: 'BKHealthcare',
                     allowed_formats: ['jpg', 'png', 'jpeg', 'gif'],
                 },
                 (error, result) => {
