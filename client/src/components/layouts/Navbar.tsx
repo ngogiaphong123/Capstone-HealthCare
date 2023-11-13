@@ -20,7 +20,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 export default function Navbar() {
   const user = useAppSelector(state => state.auth.user)
   const loading = useAppSelector(state => state.auth.loading)
-  console.log(loading)
   const dispatch = useDispatch<AppDispatch>()
   const router = useRouter()
   const { toast } = useToast()
@@ -44,7 +43,9 @@ export default function Navbar() {
     <div className="w-full flex justify-between px-4 lg:px-16 py-4 items-center sticky top-0 z-40">
       <div className="text-2xl color-[#2E3D8D]">BK Healthcare</div>
       {loading ? (
-        <Skeleton className="w-[100px] h-[20px] rounded-full" />
+        <Avatar>
+          <Skeleton className="w-[100px] rounded-full" />
+        </Avatar>
       ) : !isEmpty(user) ? (
         <DropdownMenu>
           <DropdownMenuTrigger>

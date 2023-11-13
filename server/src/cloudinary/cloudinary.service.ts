@@ -20,4 +20,7 @@ export class CloudinaryService {
             streamifier.createReadStream(file.buffer).pipe(uploadStream)
         })
     }
+    deleteFile = (public_id: string) => {
+        return cloudinary.uploader.destroy(public_id)
+    }
 }

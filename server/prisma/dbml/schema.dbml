@@ -11,6 +11,7 @@ Table User {
   lastName String
   fullName String
   address String
+  avatarPublicId String [unique]
   avatar String [not null]
   accessToken String
   refreshToken String
