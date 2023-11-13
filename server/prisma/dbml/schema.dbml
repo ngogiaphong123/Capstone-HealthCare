@@ -7,9 +7,7 @@ Table User {
   phone String [unique, not null]
   email String [unique]
   password String [not null]
-  firstName String
-  lastName String
-  fullName String
+  name String [not null]
   address String
   avatarPublicId String [unique]
   avatar String [not null]

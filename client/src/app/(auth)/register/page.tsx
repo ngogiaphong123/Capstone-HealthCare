@@ -19,7 +19,6 @@ import { useDispatch } from 'react-redux'
 import { AppDispatch } from '@redux/store'
 import { useToast } from '@components/ui/use-toast'
 import { register } from '@redux/slices/auth.slice'
-import { useEffect } from 'react'
 
 const formSchema = z
   .object({
@@ -44,6 +43,12 @@ const formSchema = z
       })
       .max(20, {
         message: 'Password must be at most 20 characters',
+      }),
+    name: z
+      .string()
+      .min(1, { message: 'Name must be at least 2 characters' })
+      .max(50, {
+        message: 'Name must be at most 50 characters',
       }),
   })
   .refine(
@@ -110,6 +115,22 @@ export default function Register() {
               </FormItem>
             )}
           />{' '}
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Full name</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Your full name"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="password"

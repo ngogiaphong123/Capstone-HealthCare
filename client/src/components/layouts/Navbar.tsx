@@ -52,7 +52,7 @@ export default function Navbar() {
             {' '}
             <Avatar>
               <AvatarImage src={user.avatar} />
-              <AvatarFallback>{user.fullName}</AvatarFallback>
+              <AvatarFallback>{user.name}</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent>

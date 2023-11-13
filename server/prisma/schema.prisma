@@ -16,9 +16,7 @@ model User {
     phone          String  @unique
     email          String? @unique
     password       String
-    firstName      String?
-    lastName       String?
-    fullName       String?
+    name       String
     address        String? @db.Text
     avatarPublicId String? @unique
     avatar         String  @db.Text

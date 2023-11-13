@@ -8,9 +8,7 @@ type User = {
   phone: string
   role: string
   avatar: string
-  fullName: string
-  firstName: string
-  lastName: string
+  name: string
   address: string
   email: string
 }

@@ -12,7 +12,7 @@ export class AuthService {
     constructor(private prisma: PrismaService, private jwt: JwtService) {}
     async register(dto: RegisterDto) {
         try {
-            const { phone, password } = dto
+            const { phone, password, name } = dto
             const existedUser = await this.prisma.user.findUnique({
                 where: { phone },
                 select: {
@@ -20,10 +20,8 @@ export class AuthService {
                     phone: true,
                     role: true,
                     avatar: true,
-                    fullName: true,
+                    name: true,
                     address: true,
-                    firstName: true,
-                    lastName: true,
                     email: true,
                     password: true,
                 },
@@ -35,6 +33,7 @@ export class AuthService {
             const user = await this.prisma.user.create({
                 data: {
                     phone,
+                    name,
                     password: hashedPassword,
                     avatar: process.env.DEFAULT_AVATAR,
                 },
@@ -66,10 +65,8 @@ export class AuthService {
                     phone: true,
                     role: true,
                     avatar: true,
-                    fullName: true,
+                    name: true,
                     address: true,
-                    firstName: true,
-                    lastName: true,
                     email: true,
                     password: true,
                 },
@@ -109,10 +106,8 @@ export class AuthService {
                 phone: true,
                 role: true,
                 avatar: true,
-                fullName: true,
+                name: true,
                 address: true,
-                firstName: true,
-                lastName: true,
                 email: true,
             },
         })
