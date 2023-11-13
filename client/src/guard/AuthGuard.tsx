@@ -12,7 +12,6 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     if (getCookie(AuthConfig.accessTokenKey)) {
       dispatch(getMe())
         .then(result => {
-          console.log(result)
           if (result.meta.requestStatus === 'rejected') {
             throw new Error(result.payload)
           }

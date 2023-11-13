@@ -79,6 +79,25 @@ export const getMe = createAsyncThunk(
       )
       const data = await response.json()
       if (!response.ok) {
+        if (data.message === AuthConfig.accessTokenExpired) {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                refreshToken: getCookie(AuthConfig.refreshTokenKey),
+              }),
+            },
+          )
+          const data = await response.json()
+          if (!response.ok) {
+            throw new Error(data.message)
+          }
+          setCookie(AuthConfig.accessTokenKey, data.data.accessToken)
+          setCookie(AuthConfig.refreshTokenKey, data.data.refreshToken)
+          return data.data.user
+        }
         throw new Error(data.message)
       }
       return data.data
