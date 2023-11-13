@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import AuthConfig from '@/app/config/auth.config'
+import AuthConfig from '@/config/auth.config'
 import { getCookie, setCookie, unsetCookie } from '@lib/utils'
 
 type User = {
@@ -26,8 +26,14 @@ const authSlice = createSlice({
     builder.addCase(login.fulfilled, (state, action) => {
       state.user = action.payload
     })
+    builder.addCase(register.fulfilled, (state, action) => {
+      state.user = action.payload
+    })
     builder.addCase(getMe.fulfilled, (state, action) => {
       state.user = action.payload
+    })
+    builder.addCase(logout.fulfilled, (state, action) => {
+      state.user = {} as User
     })
   },
 })
@@ -79,6 +85,57 @@ export const getMe = createAsyncThunk(
     } catch (error: any) {
       unsetCookie(AuthConfig.accessTokenKey)
       unsetCookie(AuthConfig.refreshTokenKey)
+      return rejectWithValue(error.message)
+    }
+  },
+)
+
+export const register = createAsyncThunk(
+  'auth/register',
+  async (input: any, { rejectWithValue }) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(input),
+        },
+      )
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.message)
+      }
+      setCookie(AuthConfig.accessTokenKey, data.data.accessToken)
+      setCookie(AuthConfig.refreshTokenKey, data.data.refreshToken)
+      return data.data.user
+    } catch (error: any) {
+      return rejectWithValue(error.message)
+    }
+  },
+)
+
+export const logout = createAsyncThunk(
+  'auth/logout',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/logout`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${getCookie(AuthConfig.accessTokenKey)}`,
+          },
+        },
+      )
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.message)
+      }
+      unsetCookie(AuthConfig.accessTokenKey)
+      unsetCookie(AuthConfig.refreshTokenKey)
+    } catch (error: any) {
       return rejectWithValue(error.message)
     }
   },

@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect } from 'react'
-import AuthConfig from '@/app/config/auth.config'
+import AuthConfig from '@/config/auth.config'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '@redux/store'
 import { getMe } from '@redux/slices/auth.slice'

@@ -98,7 +98,11 @@ export default function Login() {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input placeholder="Your password" {...field} />
+                  <Input
+                    type="password"
+                    placeholder="Your password"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
