@@ -125,18 +125,6 @@ export class AuthService {
             const payload = await this.verifyToken(refreshToken)
             const user = await this.prisma.user.findUnique({
                 where: { id: payload.id },
-                select: {
-                    id: true,
-                    phone: true,
-                    role: true,
-                    avatar: true,
-                    fullName: true,
-                    address: true,
-                    firstName: true,
-                    lastName: true,
-                    email: true,
-                    refreshToken: true,
-                },
             })
             if (!user) {
                 throw new Error(AuthError.USER_NOT_FOUND)
@@ -149,13 +137,7 @@ export class AuthService {
             }
             const newTokens = await this.generateTokens(newPayload)
             await this.updateTokens(user.id, newTokens)
-            const { refreshToken: _, ...rest } = user
-            return {
-                ...newTokens,
-                user: {
-                    ...rest,
-                },
-            }
+            return newTokens
         } catch (error) {
             return exceptionHandler(error)
         }

@@ -15,9 +15,12 @@ import { useDispatch } from 'react-redux'
 import { useRouter } from 'next/navigation'
 import { logout } from '@redux/slices/auth.slice'
 import { useToast } from '@/components/ui/use-toast'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default function Navbar() {
   const user = useAppSelector(state => state.auth.user)
+  const loading = useAppSelector(state => state.auth.loading)
+  console.log(loading)
   const dispatch = useDispatch<AppDispatch>()
   const router = useRouter()
   const { toast } = useToast()
@@ -40,7 +43,9 @@ export default function Navbar() {
   return (
     <div className="w-full flex justify-between px-4 lg:px-16 py-4 items-center sticky top-0 z-40">
       <div className="text-2xl color-[#2E3D8D]">BK Healthcare</div>
-      {!isEmpty(user) ? (
+      {loading ? (
+        <Skeleton className="w-[100px] h-[20px] rounded-full" />
+      ) : !isEmpty(user) ? (
         <DropdownMenu>
           <DropdownMenuTrigger>
             {' '}

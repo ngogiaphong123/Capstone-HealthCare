@@ -19,6 +19,7 @@ import { useDispatch } from 'react-redux'
 import { AppDispatch } from '@redux/store'
 import { useToast } from '@components/ui/use-toast'
 import { register } from '@redux/slices/auth.slice'
+import { useEffect } from 'react'
 
 const formSchema = z
   .object({
@@ -67,7 +68,6 @@ export default function Register() {
       confirmPassword: '',
     },
   })
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const result = await dispatch(register(values))
@@ -144,7 +144,9 @@ export default function Register() {
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
+          <Button type="submit">
+            {form.formState.isSubmitting ? 'Loading...' : 'Login'}
+          </Button>
         </form>
       </Form>
     </section>

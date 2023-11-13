@@ -1,23 +1,23 @@
 'use client'
 import React, { useEffect } from 'react'
-import AuthConfig from '@/config/auth.config'
 import { useDispatch } from 'react-redux'
-import { AppDispatch } from '@redux/store'
+import { AppDispatch, useAppSelector } from '@redux/store'
 import { getMe } from '@redux/slices/auth.slice'
-import { getCookie } from '../lib/utils'
+import { isEmpty } from '@lib/utils'
+import { usePathname, useRouter } from 'next/navigation'
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch<AppDispatch>()
+  const router = useRouter()
+  const pathname = usePathname()
   useEffect(() => {
-    if (getCookie(AuthConfig.accessTokenKey)) {
-      dispatch(getMe())
-        .then(result => {
-          if (result.meta.requestStatus === 'rejected') {
-            throw new Error(result.payload)
-          }
-        })
-        .catch(err => {})
-    }
+    dispatch(getMe())
+      .then(result => {
+        if (result.meta.requestStatus === 'rejected') {
+          throw new Error(result.payload)
+        }
+      })
+      .catch(err => {})
   }, [])
 
   return <>{children}</>

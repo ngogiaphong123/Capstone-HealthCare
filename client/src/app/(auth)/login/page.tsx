@@ -108,7 +108,9 @@ export default function Login() {
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
+          <Button type="submit">
+            {form.formState.isSubmitting ? 'Loading...' : 'Login'}
+          </Button>
         </form>
       </Form>
     </section>
