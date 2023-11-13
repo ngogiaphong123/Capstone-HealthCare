@@ -65,6 +65,7 @@ export default function Navbar() {
         </DropdownMenu>
       ) : (
         <Button
+          variant={'outline'}
           onClick={() => {
             window.location.href = '/login'
           }}
