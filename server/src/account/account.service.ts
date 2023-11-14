@@ -23,19 +23,44 @@ export class AccountService {
             if (user.avatar !== process.env.DEFAULT_AVATAR) {
                 await this.cloudinary.deleteFile(user.avatarPublicId)
             }
+            if (avatar === undefined) {
+                return await this.prisma.user.update({
+                    where: { id },
+                    data: {
+                        avatar: process.env.DEFAULT_AVATAR,
+                        avatarPublicId: null,
+                    },
+                    select: {
+                        id: true,
+                        phone: true,
+                        role: true,
+                        avatar: true,
+                        name: true,
+                        address: true,
+                        email: true,
+                    },
+                })
+            }
             const { secure_url, public_id } = await this.cloudinary.uploadFile(
                 avatar,
             )
-            await this.prisma.user.update({
+            return await this.prisma.user.update({
                 where: { id },
                 data: {
                     avatar: secure_url,
                     avatarPublicId: public_id,
                 },
+                select: {
+                    id: true,
+                    phone: true,
+                    role: true,
+                    avatar: true,
+                    name: true,
+                    address: true,
+                    email: true,
+                },
             })
-            return secure_url
         } catch (error) {
-            console.log(error)
             return exceptionHandler(error)
         }
     }
@@ -46,6 +71,15 @@ export class AccountService {
                 where: { id },
                 data: {
                     ...dto,
+                },
+                select: {
+                    id: true,
+                    phone: true,
+                    role: true,
+                    avatar: true,
+                    name: true,
+                    address: true,
+                    email: true,
                 },
             })
             return user

@@ -1,9 +1,11 @@
 import { EditProfileDto } from './dto/edit-profile.dto'
 import {
+    Body,
     Controller,
     HttpCode,
     HttpStatus,
     Post,
+    Put,
     UploadedFile,
     UseGuards,
     UseInterceptors,
@@ -32,11 +34,11 @@ export class AccountController {
         return this.accountService.uploadAvatar(avatar, id)
     }
 
-    @Post('/edit-profile')
+    @Put('/edit-profile')
     @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('Edit profile successfully')
-    editProfile(@GetCurrentUser('id') id: string, dto: EditProfileDto) {
+    editProfile(@Body() dto: EditProfileDto, @GetCurrentUser('id') id: string) {
         return this.accountService.editProfile(dto, id)
     }
 }

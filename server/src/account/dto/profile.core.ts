@@ -6,15 +6,11 @@ export class ProfileCore {
     @Length(1, 50, { message: 'Email must be between 1 and 50 characters' })
     email: string
 
-    @IsString({ message: 'First name must be a string' })
+    @IsString({ message: 'Full name must be a string' })
     @Length(1, 50, {
-        message: 'First name must be between 1 and 50 characters',
+        message: 'Full name must be between 1 and 50 characters',
     })
-    firstName: string
-
-    @IsString({ message: 'Last name must be a string' })
-    @Length(1, 50, { message: 'Last name must be between 1 and 50 characters' })
-    lastName: string
+    name: string
 
     @IsString({ message: 'Address must be a string' })
     @Length(1, 100, { message: 'Address must be between 1 and 100 characters' })
