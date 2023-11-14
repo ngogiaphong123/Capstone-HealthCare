@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '@redux/store'
-import { login } from '@redux/slices/auth.slice'
+import { login } from '@/redux/slices/user.slice'
 import { useToast } from '@components/ui/use-toast'
 
 const formSchema = z.object({

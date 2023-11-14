@@ -30,7 +30,7 @@ export default function Sidebar({ className }: { className?: string }) {
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
           <div className="space-y-1">
-            {sidebarItems.map((item, index) => (
+            {sidebarItems.map(item => (
               <Link
                 key={item.href}
                 href={item.href}

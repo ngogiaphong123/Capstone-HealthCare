@@ -12,14 +12,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useDispatch } from 'react-redux'
-import { useRouter } from 'next/navigation'
-import { logout } from '@redux/slices/auth.slice'
+import { redirect, useRouter } from 'next/navigation'
+import { logout } from '@/redux/slices/user.slice'
 import { useToast } from '@/components/ui/use-toast'
 import { Skeleton } from '@/components/ui/skeleton'
+import Link from 'next/link'
 
 export default function Navbar() {
-  const user = useAppSelector(state => state.auth.user)
-  const loading = useAppSelector(state => state.auth.loading)
+  const user = useAppSelector(state => state.user.user)
+  const loading = useAppSelector(state => state.user.loading)
   const dispatch = useDispatch<AppDispatch>()
   const router = useRouter()
   const { toast } = useToast()
@@ -56,22 +57,23 @@ export default function Navbar() {
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuLabel>My Account: {user.phone}</DropdownMenuLabel>
+            <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Your profile</DropdownMenuItem>
+            <Link href={'/account'}>
+              <DropdownMenuItem>Account</DropdownMenuItem>
+            </Link>
+            <Link href={'/profile'}>
+              <DropdownMenuItem>Health profile</DropdownMenuItem>
+            </Link>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={onLogout}>Sign out</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <Button
-          variant={'outline'}
-          onClick={() => {
-            window.location.href = '/login'
-          }}
-        >
-          Consult now
-        </Button>
+        <Link href={'/login'}>
+          {' '}
+          <Button variant={'outline'}>Consult now</Button>
+        </Link>
       )}
     </div>
   )

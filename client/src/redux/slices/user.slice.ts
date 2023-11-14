@@ -2,24 +2,15 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import AuthConfig from '@/config/auth.config'
 import { setCookie, unsetCookie } from '@lib/utils'
 import { handleAxiosError, privateApi, publicApi } from '@lib/axios'
-
-type User = {
-  id: number
-  phone: string
-  role: string
-  avatar: string
-  name: string
-  address: string
-  email: string
-}
+import { User } from './types/user.type'
 
 const initialState = {
   user: {} as User,
   loading: true,
 }
 
-const authSlice = createSlice({
-  name: 'auth',
+const userSlice = createSlice({
+  name: 'user',
   initialState,
   reducers: {},
   extraReducers: builder => {
@@ -41,6 +32,12 @@ const authSlice = createSlice({
     })
     builder.addCase(logout.fulfilled, (state, action) => {
       state.user = {} as User
+    })
+    builder.addCase(editProfile.fulfilled, (state, action) => {
+      state.user = action.payload
+    })
+    builder.addCase(uploadAvatar.fulfilled, (state, action) => {
+      state.user = action.payload
     })
   },
 })
@@ -102,4 +99,40 @@ export const logout = createAsyncThunk(
   },
 )
 
-export default authSlice
+export const editProfile = createAsyncThunk(
+  'account/editProfile',
+  async (input: any, { rejectWithValue }) => {
+    try {
+      const { data } = await privateApi.put('/account/edit-profile', input)
+      return data.data
+    } catch (error: any) {
+      const { message } = handleAxiosError(error)
+      return rejectWithValue(message)
+    }
+  },
+)
+
+export const uploadAvatar = createAsyncThunk(
+  'account/uploadAvatar',
+  async (input: any, { rejectWithValue }) => {
+    try {
+      const formData = new FormData()
+      formData.append('avatar', input)
+      const { data } = await privateApi.post(
+        '/account/upload-avatar',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      )
+      return data.data
+    } catch (error: any) {
+      const { message } = handleAxiosError(error)
+      return rejectWithValue(message)
+    }
+  },
+)
+
+export default userSlice

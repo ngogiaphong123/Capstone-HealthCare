@@ -1,11 +1,13 @@
 'use client'
 import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import { AppDispatch } from '@redux/store'
-import { getMe } from '@redux/slices/auth.slice'
+import { AppDispatch, useAppSelector } from '@redux/store'
+import { getMe } from '@/redux/slices/user.slice'
+import Spinner from '@components/layouts/spinner'
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch<AppDispatch>()
+  const loading = useAppSelector(state => state.user.loading)
   useEffect(() => {
     dispatch(getMe())
       .then(result => {
@@ -16,5 +18,11 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       .catch(err => {})
   }, [])
 
-  return <>{children}</>
+  return !loading ? (
+    <>{children}</>
+  ) : (
+    <div className="w-full h-full min-h-screen flex justify-center items-center">
+      <Spinner />
+    </div>
+  )
 }

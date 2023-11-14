@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '@redux/store'
 import { useToast } from '@components/ui/use-toast'
-import { register } from '@redux/slices/auth.slice'
+import { register } from '@/redux/slices/user.slice'
 
 const formSchema = z
   .object({
@@ -122,10 +122,7 @@ export default function Register() {
               <FormItem>
                 <FormLabel>Full name</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Your full name"
-                    {...field}
-                  />
+                  <Input placeholder="Your full name" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
