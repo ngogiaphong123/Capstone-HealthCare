@@ -16,7 +16,7 @@ model User {
     phone          String  @unique
     email          String? @unique
     password       String
-    name       String
+    name           String
     address        String? @db.Text
     avatarPublicId String? @unique
     avatar         String  @db.Text
@@ -45,7 +45,13 @@ model Patient {
 }
 
 model HealthRecord {
-    id String @id @default(uuid())
+    id        String   @id @default(uuid())
+    gender    Gender
+    bloodType String
+    height    Int
+    weight    Int
+    birthDate DateTime
+    bmi       Float
 
     patient   Patient @relation(fields: [patientId], references: [id])
     patientId String
@@ -69,7 +75,8 @@ model Condition {
 }
 
 model HealthRecordCondition {
-    id String @id @default(uuid())
+    severity Severity @default(LOW)
+    note     String?  @default("")
 
     healthRecord   HealthRecord @relation(fields: [healthRecordId], references: [id])
     healthRecordId String
@@ -78,10 +85,12 @@ model HealthRecordCondition {
     conditionId String
 
     doctor   Doctor? @relation(fields: [doctorId], references: [id])
-    doctorId String? @unique
+    doctorId String?
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    @@id([healthRecordId, conditionId])
 }
 
 enum ConditionType {
@@ -104,6 +113,18 @@ model DoctorSpecialty {
     @@unique([name])
 }
 
+model DoctorEducation {
+    id       String @id @default(uuid())
+    doctor   Doctor @relation(fields: [doctorId], references: [id])
+    doctorId String
+    degree   String
+    school   String
+    year     Int
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
 model Doctor {
     id String @id @default(uuid())
 
@@ -112,17 +133,19 @@ model Doctor {
     specialty   DoctorSpecialty @relation(fields: [specialtyId], references: [id])
     specialtyId String          @unique
 
-    appointments          Appointment[]
-    prescriptions         Prescription[]
-    HealthRecordCondition HealthRecordCondition[]
+    appointments           Appointment[]
+    prescriptions          Prescription[]
+    healthRecordConditions HealthRecordCondition[]
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    createdAt        DateTime          @default(now())
+    updatedAt        DateTime          @updatedAt
+    doctorEducations DoctorEducation[]
 }
 
 model Appointment {
-    id   String   @id @default(uuid())
-    date DateTime
+    id    String   @id @default(uuid())
+    date  DateTime
+    notes String?
 
     status       Status
     patient      Patient       @relation(fields: [patientId], references: [id])
@@ -153,8 +176,13 @@ model Prescription {
 }
 
 model Medicine {
-    id   String @id @default(uuid())
-    name String
+    id           String @id @default(uuid())
+    name         String
+    image        String @db.Text
+    composition  String @db.Text
+    uses         String @db.Text
+    sideEffects  String @db.Text
+    manufacturer String
 
     medicinePrescriptions MedicinePrescription[]
 
@@ -166,6 +194,7 @@ model MedicinePrescription {
     medicineId     String
     prescriptionId String
     quantity       Int
+    dosage         String?
 
     medicine     Medicine     @relation(fields: [medicineId], references: [id])
     prescription Prescription @relation(fields: [prescriptionId], references: [id])
@@ -187,4 +216,16 @@ enum Status {
     REJECTED
     CANCELED
     FINISHED
+}
+
+enum Severity {
+    LOW
+    MEDIUM
+    HIGH
+}
+
+enum Gender {
+    MALE
+    FEMALE
+    OTHER
 }

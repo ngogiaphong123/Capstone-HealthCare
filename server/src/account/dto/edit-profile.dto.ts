@@ -1,3 +1,3 @@
-import { ProfileCore } from './profile.core'
+import { AccountCore } from './profile.core'
 
-export class EditProfileDto extends ProfileCore {}
+export class EditAccountDto extends AccountCore {}

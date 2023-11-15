@@ -34,6 +34,7 @@
         "class-transformer": "^0.5.1",
         "class-validator": "^0.14.0",
         "cloudinary": "^1.41.0",
+        "csv-parse": "^5.5.2",
         "module-alias": "^2.2.3",
         "reflect-metadata": "^0.1.13",
         "rxjs": "^7.8.1",

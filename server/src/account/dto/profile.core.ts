@@ -1,6 +1,6 @@
 import { IsEmail, IsString, Length } from 'class-validator'
 
-export class ProfileCore {
+export class AccountCore {
     @IsString({ message: 'Email must be a string' })
     @IsEmail({}, { message: 'Email is invalid' })
     @Length(1, 50, { message: 'Email must be between 1 and 50 characters' })

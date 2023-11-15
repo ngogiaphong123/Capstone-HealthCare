@@ -1,4 +1,4 @@
-import { EditProfileDto } from './dto/edit-profile.dto'
+import { EditAccountDto } from './dto'
 import {
     Body,
     Controller,
@@ -10,11 +10,10 @@ import {
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common'
-import { ResTransformInterceptor } from '../common/interceptors/response.interceptor'
-import { JwtAuthGuard } from '../common/guards/jwt.guard'
-import { ResponseMessage } from '../common/decorators/response.decorator'
+import { ResTransformInterceptor } from '../common/interceptors'
+import { JwtAuthGuard } from '../common/guards'
+import { GetCurrentUser, ResponseMessage } from '../common/decorators'
 import { FileInterceptor } from '@nestjs/platform-express'
-import { GetCurrentUser } from '../common/decorators/get-user.decorator'
 import { AccountService } from './account.service'
 
 @Controller('account')
@@ -38,7 +37,7 @@ export class AccountController {
     @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('Edit profile successfully')
-    editProfile(@Body() dto: EditProfileDto, @GetCurrentUser('id') id: string) {
+    editProfile(@Body() dto: EditAccountDto, @GetCurrentUser('id') id: string) {
         return this.accountService.editProfile(dto, id)
     }
 }

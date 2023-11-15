@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { CloudinaryService } from '../cloudinary/cloudinary.service'
 import { exceptionHandler } from '../common/exception'
-import { EditProfileDto } from './dto'
+import { EditAccountDto } from './dto'
 
 @Injectable()
 export class AccountService {
@@ -65,7 +65,7 @@ export class AccountService {
         }
     }
 
-    async editProfile(dto: EditProfileDto, id: string) {
+    async editProfile(dto: EditAccountDto, id: string) {
         try {
             const user = await this.prisma.user.update({
                 where: { id },

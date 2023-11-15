@@ -10,10 +10,9 @@ import {
     UseInterceptors,
 } from '@nestjs/common'
 import { LoginDto, RefreshTokenDto, RegisterDto } from './dto'
-import { ResTransformInterceptor } from '../common/interceptors/response.interceptor'
-import { ResponseMessage } from '../common/decorators/response.decorator'
-import { JwtAuthGuard } from '../common/guards/index.guard'
-import { GetCurrentUser } from '../common/decorators/get-user.decorator'
+import { ResTransformInterceptor } from '../common/interceptors'
+import { GetCurrentUser, ResponseMessage } from '../common/decorators'
+import { JwtAuthGuard } from '../common/guards'
 import { Payload } from './types/payload'
 
 @Controller('auth')
