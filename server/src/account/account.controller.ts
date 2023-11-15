@@ -21,7 +21,7 @@ import { AccountService } from './account.service'
 export class AccountController {
     constructor(private accountService: AccountService) {}
 
-    @Post('/upload-avatar')
+    @Post('upload-avatar')
     @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('Upload avatar successfully')
@@ -33,7 +33,7 @@ export class AccountController {
         return this.accountService.uploadAvatar(avatar, id)
     }
 
-    @Put('/edit-profile')
+    @Put('edit-profile')
     @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('Edit profile successfully')

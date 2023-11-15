@@ -4,7 +4,7 @@ import { PrismaModule } from './prisma/prisma.module'
 import { CloudinaryModule } from './cloudinary/cloudinary.module'
 import { AuthModule } from './auth/auth.module'
 import { AccountModule } from './account/account.module'
-import { DoctorModule } from './doctor/doctor.module'
+import { DoctorModule } from './doctor-profile/doctor-profile.module'
 @Module({
     imports: [
         ConfigModule.forRoot(),

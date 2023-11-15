@@ -16,6 +16,7 @@ Table User {
   role Role [not null, default: 'PATIENT']
   patient Patient
   doctor Doctor
+  healthRecordConditions HealthRecordCondition [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
 }
@@ -63,8 +64,8 @@ Table HealthRecordCondition {
   healthRecordId String [not null]
   condition Condition [not null]
   conditionId String [not null]
-  doctor Doctor
-  doctorId String
+  user User [not null]
+  userId String [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
 
@@ -73,37 +74,66 @@ Table HealthRecordCondition {
   }
 }
 
-Table DoctorSpecialty {
+Table Specialty {
   id String [pk]
   name String [unique, not null]
-  doctors Doctor [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
+  doctorSpecialties DoctorSpecialty [not null]
+}
+
+Table MedicalSchool {
+  id String [pk]
+  name String [not null]
+  abbr String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  DoctorEducation DoctorEducation [not null]
+
+  indexes {
+    (name, abbr) [unique]
+  }
 }
 
 Table DoctorEducation {
-  id String [pk]
-  doctor Doctor [not null]
   doctorId String [not null]
-  degree String [not null]
-  school String [not null]
-  year Int [not null]
+  medicalSchoolId String [not null]
+  degree Degree [not null]
+  medicalSchool MedicalSchool [not null]
+  doctor Doctor [not null]
+  year String [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
+
+  indexes {
+    (doctorId, medicalSchoolId) [pk]
+  }
+}
+
+Table DoctorSpecialty {
+  doctorId String [not null]
+  specialtyId String [not null]
+  experience Int [not null]
+  doctor Doctor [not null]
+  specialty Specialty [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+
+  indexes {
+    (doctorId, specialtyId) [pk]
+  }
 }
 
 Table Doctor {
   id String [pk]
   user User [not null]
   userId String [unique, not null]
-  specialty DoctorSpecialty [not null]
-  specialtyId String [unique, not null]
   appointments Appointment [not null]
   prescriptions Prescription [not null]
-  healthRecordConditions HealthRecordCondition [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
   doctorEducations DoctorEducation [not null]
+  doctorSpecialties DoctorSpecialty [not null]
 }
 
 Table Appointment {
@@ -197,6 +227,14 @@ Enum Gender {
   OTHER
 }
 
+Enum Degree {
+  RESIDENT_TRAINING
+  SPECIALIZED_LEVEL_1
+  SPECIALIZED_LEVEL_2
+  MASTER
+  PHD
+}
+
 Ref: Patient.userId - User.id
 
 Ref: HealthRecord.patientId > Patient.id
@@ -205,13 +243,17 @@ Ref: HealthRecordCondition.healthRecordId > HealthRecord.id
 
 Ref: HealthRecordCondition.conditionId > Condition.id
 
-Ref: HealthRecordCondition.doctorId > Doctor.id
+Ref: HealthRecordCondition.userId > User.id
+
+Ref: DoctorEducation.medicalSchoolId > MedicalSchool.id
 
 Ref: DoctorEducation.doctorId > Doctor.id
 
-Ref: Doctor.userId - User.id
+Ref: DoctorSpecialty.doctorId > Doctor.id
 
-Ref: Doctor.specialtyId > DoctorSpecialty.id
+Ref: DoctorSpecialty.specialtyId > Specialty.id
+
+Ref: Doctor.userId - User.id
 
 Ref: Appointment.patientId > Patient.id
 

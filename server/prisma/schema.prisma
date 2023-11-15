@@ -23,9 +23,10 @@ model User {
     accessToken    String? @db.Text
     refreshToken   String? @db.Text
 
-    role    Role     @default(PATIENT)
-    patient Patient?
-    doctor  Doctor?
+    role                   Role                    @default(PATIENT)
+    patient                Patient?
+    doctor                 Doctor?
+    healthRecordConditions HealthRecordCondition[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -84,9 +85,8 @@ model HealthRecordCondition {
     condition   Condition @relation(fields: [conditionId], references: [id])
     conditionId String
 
-    doctor   Doctor? @relation(fields: [doctorId], references: [id])
-    doctorId String?
-
+    user      User     @relation(fields: [userId], references: [id])
+    userId    String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
@@ -102,44 +102,72 @@ enum ConditionType {
     OTHER
 }
 
-model DoctorSpecialty {
-    id      String   @id @default(uuid())
-    name    String
-    doctors Doctor[]
+model Specialty {
+    id   String @id @default(uuid())
+    name String
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    createdAt         DateTime          @default(now())
+    updatedAt         DateTime          @updatedAt
+    doctorSpecialties DoctorSpecialty[]
 
     @@unique([name])
 }
 
+model MedicalSchool {
+    id   String @id @default(uuid())
+    name String
+    abbr String
+
+    createdAt       DateTime          @default(now())
+    updatedAt       DateTime          @updatedAt
+    DoctorEducation DoctorEducation[]
+
+    @@unique([name, abbr])
+}
+
 model DoctorEducation {
-    id       String @id @default(uuid())
-    doctor   Doctor @relation(fields: [doctorId], references: [id])
-    doctorId String
-    degree   String
-    school   String
-    year     Int
+    doctorId        String
+    medicalSchoolId String
+
+    degree        Degree
+    medicalSchool MedicalSchool @relation(fields: [medicalSchoolId], references: [id])
+    doctor        Doctor        @relation(fields: [doctorId], references: [id])
+
+    year String
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    @@id([doctorId, medicalSchoolId])
+}
+
+model DoctorSpecialty {
+    doctorId    String
+    specialtyId String
+    experience  Int
+
+    doctor    Doctor    @relation(fields: [doctorId], references: [id])
+    specialty Specialty @relation(fields: [specialtyId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@id([doctorId, specialtyId])
 }
 
 model Doctor {
     id String @id @default(uuid())
 
-    user        User            @relation(fields: [userId], references: [id])
-    userId      String          @unique
-    specialty   DoctorSpecialty @relation(fields: [specialtyId], references: [id])
-    specialtyId String          @unique
+    user   User   @relation(fields: [userId], references: [id])
+    userId String @unique
 
-    appointments           Appointment[]
-    prescriptions          Prescription[]
-    healthRecordConditions HealthRecordCondition[]
+    appointments  Appointment[]
+    prescriptions Prescription[]
 
-    createdAt        DateTime          @default(now())
-    updatedAt        DateTime          @updatedAt
-    doctorEducations DoctorEducation[]
+    createdAt         DateTime          @default(now())
+    updatedAt         DateTime          @updatedAt
+    doctorEducations  DoctorEducation[]
+    doctorSpecialties DoctorSpecialty[]
 }
 
 model Appointment {
@@ -228,4 +256,12 @@ enum Gender {
     MALE
     FEMALE
     OTHER
+}
+
+enum Degree {
+    RESIDENT_TRAINING
+    SPECIALIZED_LEVEL_1
+    SPECIALIZED_LEVEL_2
+    MASTER
+    PHD
 }

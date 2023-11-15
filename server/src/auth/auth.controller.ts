@@ -20,21 +20,21 @@ import { Payload } from './types/payload'
 export class AuthController {
     constructor(private authService: AuthService) {}
 
-    @Post('/register')
+    @Post('register')
     @HttpCode(HttpStatus.CREATED)
     @ResponseMessage('User registered successfully')
     register(@Body() dto: RegisterDto) {
         return this.authService.register(dto)
     }
 
-    @Post('/login')
+    @Post('login')
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('User logged in successfully')
     login(@Body() dto: LoginDto) {
         return this.authService.login(dto)
     }
 
-    @Get('/me')
+    @Get('me')
     @HttpCode(HttpStatus.OK)
     @UseGuards(JwtAuthGuard)
     @ResponseMessage('User profile')
@@ -42,14 +42,14 @@ export class AuthController {
         return this.authService.getUser(user.id)
     }
 
-    @Post('/refresh')
+    @Post('refresh')
     @HttpCode(HttpStatus.CREATED)
     @ResponseMessage('Tokens refreshed successfully')
     refreshTokens(@Body() dto: RefreshTokenDto) {
         return this.authService.refreshTokens(dto)
     }
 
-    @Post('/logout')
+    @Post('logout')
     @HttpCode(HttpStatus.OK)
     @UseGuards(JwtAuthGuard)
     @ResponseMessage('User logged out successfully')

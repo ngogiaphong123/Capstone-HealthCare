@@ -5,7 +5,7 @@ import { createReadStream } from 'fs'
 const prisma = new PrismaClient()
 
 async function main() {
-    createReadStream('./prisma/seeds/medicine.csv')
+    createReadStream('./prisma/seeds/medicine/medicine.csv')
         .pipe(parse({ delimiter: ',' }))
         .on(
             'data',
