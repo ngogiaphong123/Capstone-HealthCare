@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { DoctorEducationDto, DoctorSpecialtyDto } from './dto'
-import { DoctorProfileError } from '../common/errors/doctor-profile'
+import { DoctorProfileError } from '../common/errors'
 import { exceptionHandler } from '../common/exception'
 import { Degree } from '@prisma/client'
 

@@ -34,12 +34,12 @@ Table Patient {
 
 Table HealthRecord {
   id String [pk]
-  gender Gender [not null]
-  bloodType String [not null]
-  height Int [not null]
-  weight Int [not null]
-  birthDate DateTime [not null]
-  bmi Float [not null]
+  gender Gender
+  bloodType String
+  height Int
+  weight Int
+  birthDate DateTime
+  bmi Float
   patient Patient [not null]
   patientId String [not null]
   healthRecordConditions HealthRecordCondition [not null]
@@ -51,7 +51,6 @@ Table Condition {
   id String [pk]
   name String [not null]
   description String [not null]
-  type ConditionType [not null]
   healthRecordConditions HealthRecordCondition [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
@@ -60,6 +59,7 @@ Table Condition {
 Table HealthRecordCondition {
   severity Severity [not null, default: 'LOW']
   note String [default: '']
+  type ConditionType [not null]
   healthRecord HealthRecord [not null]
   healthRecordId String [not null]
   condition Condition [not null]

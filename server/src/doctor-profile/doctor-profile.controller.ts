@@ -17,7 +17,7 @@ import { GetCurrentUser, ResponseMessage, Roles } from '../common/decorators'
 import { Role } from '@prisma/client'
 import { DoctorProfileService } from './doctor-profile.service'
 import { DoctorEducationDto, DoctorSpecialtyDto } from './dto'
-import { SearchDto } from './dto/search.dto'
+import { SearchDto } from './dto'
 
 @Controller('doctor')
 @UseInterceptors(ResTransformInterceptor)

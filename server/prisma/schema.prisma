@@ -46,13 +46,13 @@ model Patient {
 }
 
 model HealthRecord {
-    id        String   @id @default(uuid())
-    gender    Gender
-    bloodType String
-    height    Int
-    weight    Int
-    birthDate DateTime
-    bmi       Float
+    id        String    @id @default(uuid())
+    gender    Gender?
+    bloodType String?
+    height    Int?
+    weight    Int?
+    birthDate DateTime?
+    bmi       Float?
 
     patient   Patient @relation(fields: [patientId], references: [id])
     patientId String
@@ -64,10 +64,9 @@ model HealthRecord {
 }
 
 model Condition {
-    id          String        @id @default(uuid())
+    id          String @id @default(uuid())
     name        String
     description String
-    type        ConditionType
 
     healthRecordConditions HealthRecordCondition[]
 
@@ -76,8 +75,9 @@ model Condition {
 }
 
 model HealthRecordCondition {
-    severity Severity @default(LOW)
-    note     String?  @default("")
+    severity Severity      @default(LOW)
+    note     String?       @default("")
+    type     ConditionType
 
     healthRecord   HealthRecord @relation(fields: [healthRecordId], references: [id])
     healthRecordId String
@@ -85,8 +85,9 @@ model HealthRecordCondition {
     condition   Condition @relation(fields: [conditionId], references: [id])
     conditionId String
 
-    user      User     @relation(fields: [userId], references: [id])
-    userId    String
+    user   User   @relation(fields: [userId], references: [id])
+    userId String
+
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 

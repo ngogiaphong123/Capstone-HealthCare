@@ -38,9 +38,14 @@ export class AuthService {
                     avatar: process.env.DEFAULT_AVATAR,
                 },
             })
-            await this.prisma.patient.create({
+            const patient = await this.prisma.patient.create({
                 data: {
                     userId: user.id,
+                },
+            })
+            await this.prisma.healthRecord.create({
+                data: {
+                    patientId: patient.id,
                 },
             })
             const payload: Payload = {
