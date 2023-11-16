@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
-import { exceptionHandler } from '../common/exception'
+import { errorHandler } from '../common/errors'
 
 @Injectable()
 export class SpecialtyService {
@@ -16,7 +16,7 @@ export class SpecialtyService {
                 },
             })
         } catch (error) {
-            return exceptionHandler(error)
+            return errorHandler(error)
         }
     }
 }

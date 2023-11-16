@@ -1,7 +1,7 @@
 import { ConditionType, Severity } from '@prisma/client'
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator'
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator'
 
-export class HealthRecordConditionDto {
+export class HRCDto {
     @IsNotEmpty({ message: 'Severity cannot be empty' })
     @IsEnum(Severity, {
         message: 'Severity must be LOW, MEDIUM or HIGH',
@@ -22,4 +22,9 @@ export class HealthRecordConditionDto {
     @IsNotEmpty({ message: 'Condition id cannot be empty' })
     @IsString({ message: 'Condition id must be a string' })
     conditionId: string
+
+    @IsOptional()
+    @IsNotEmpty({ message: 'Patient id cannot be empty' })
+    @IsString({ message: 'Patient id must be a string' })
+    patientId: string
 }

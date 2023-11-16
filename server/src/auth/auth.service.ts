@@ -2,10 +2,9 @@ import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { JwtService } from '@nestjs/jwt'
 import { LoginDto, RefreshTokenDto, RegisterDto } from './dto'
-import { exceptionHandler } from '../common/exception'
 import * as argon2 from 'argon2'
 import { Payload } from './types/payload'
-import { AuthError, JwtError } from '../common/errors'
+import { AuthError, JwtError, errorHandler } from '../common/errors'
 
 @Injectable()
 export class AuthService {
@@ -40,7 +39,7 @@ export class AuthService {
             })
             const patient = await this.prisma.patient.create({
                 data: {
-                    userId: user.id,
+                    id: user.id,
                 },
             })
             await this.prisma.healthRecord.create({
@@ -61,7 +60,7 @@ export class AuthService {
                 },
             }
         } catch (error) {
-            return exceptionHandler(error)
+            return errorHandler(error)
         }
     }
 
@@ -105,7 +104,7 @@ export class AuthService {
                 },
             }
         } catch (error) {
-            return exceptionHandler(error)
+            return errorHandler(error)
         }
     }
     async getUser(id: string) {
@@ -144,7 +143,7 @@ export class AuthService {
             await this.updateTokens(user.id, newTokens)
             return newTokens
         } catch (error) {
-            return exceptionHandler(error)
+            return errorHandler(error)
         }
     }
 

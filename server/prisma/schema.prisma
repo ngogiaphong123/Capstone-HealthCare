@@ -48,8 +48,8 @@ model Patient {
 model HealthRecord {
     gender    Gender?
     bloodType String?
-    height    Int?
-    weight    Int?
+    height    Float?
+    weight    Float?
     birthDate DateTime?
     bmi       Float?
 
@@ -102,6 +102,7 @@ model Specialty {
     createdAt         DateTime          @default(now())
     updatedAt         DateTime          @updatedAt
     doctorSpecialties DoctorSpecialty[]
+    DoctorEducation   DoctorEducation[]
 
     @@unique([name])
 }
@@ -121,17 +122,19 @@ model MedicalSchool {
 model DoctorEducation {
     doctorId        String
     medicalSchoolId String
+    specialtyId     String
 
     degree        Degree
     medicalSchool MedicalSchool @relation(fields: [medicalSchoolId], references: [id])
     doctor        Doctor        @relation(fields: [doctorId], references: [id])
 
-    year String
+    year  String
+    major Specialty @relation(fields: [specialtyId], references: [id])
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    @@id([doctorId, medicalSchoolId, degree, year])
+    @@id([doctorId, medicalSchoolId, degree, year, specialtyId])
 }
 
 model DoctorSpecialty {
@@ -250,11 +253,14 @@ enum Gender {
 }
 
 enum Degree {
-    RESIDENT_TRAINING
-    SPECIALIZED_LEVEL_1
-    SPECIALIZED_LEVEL_2
+    DOCTOR_OF_MEDICINE
+    RESIDENT_DOCTOR
+    FIRST_DEGREE_SPECIALIST
+    SECOND_DEGREE_SPECIALIST
     MASTER
     PHD
+    ASSIOCATE_PROFESSOR
+    PROFESSOR
 }
 
 enum ConditionType {

@@ -6,6 +6,10 @@ export class DoctorEducationDto {
     @IsString({ message: 'Medical school id must be a string' })
     medicalSchoolId: string
 
+    @IsNotEmpty({ message: 'Specialty id cannot be empty' })
+    @IsString({ message: 'Specialty id must be a string' })
+    specialtyId: string
+
     @IsNotEmpty({ message: 'Degree cannot be empty' })
     @IsEnum(Degree, {
         message:

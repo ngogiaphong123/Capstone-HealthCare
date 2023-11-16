@@ -5,8 +5,7 @@ import {
     DoctorSpecialtyDto,
     UpdateEducationDto,
 } from './dto'
-import { DoctorProfileError } from '../common/errors'
-import { exceptionHandler } from '../common/exception'
+import { DoctorProfileError, errorHandler } from '../common/errors'
 
 @Injectable()
 export class DoctorProfileService {
@@ -35,7 +34,7 @@ export class DoctorProfileService {
             }
             return doctor.doctorSpecialties
         } catch (error) {
-            return exceptionHandler(error)
+            return errorHandler(error)
         }
     }
 
@@ -62,7 +61,7 @@ export class DoctorProfileService {
                 },
             })
         } catch (error) {
-            return exceptionHandler(error)
+            return errorHandler(error)
         }
     }
 
@@ -105,7 +104,7 @@ export class DoctorProfileService {
                 },
             })
         } catch (error) {
-            return exceptionHandler(error)
+            return errorHandler(error)
         }
     }
 
@@ -132,7 +131,7 @@ export class DoctorProfileService {
                 },
             })
         } catch (error) {
-            return exceptionHandler(error)
+            return errorHandler(error)
         }
     }
 
@@ -145,6 +144,11 @@ export class DoctorProfileService {
                         select: {
                             degree: true,
                             year: true,
+                            major: {
+                                select: {
+                                    name: true,
+                                },
+                            },
                             medicalSchool: {
                                 select: {
                                     id: true,
@@ -161,27 +165,34 @@ export class DoctorProfileService {
             }
             return doctor.doctorEducations
         } catch (error) {
-            return exceptionHandler(error)
+            return errorHandler(error)
         }
     }
 
     async addEducation(dto: DoctorEducationDto, userId: string) {
         try {
-            const { medicalSchoolId, degree, year } = dto
+            const { medicalSchoolId, specialtyId, degree, year } = dto
             const medicalSchool = await this.prisma.medicalSchool.findUnique({
                 where: { id: medicalSchoolId },
             })
             if (!medicalSchool) {
                 throw new Error(DoctorProfileError.MEDICAL_SCHOOL_NOT_FOUND)
             }
+            const specialty = await this.prisma.specialty.findUnique({
+                where: { id: specialtyId },
+            })
+            if (!specialty) {
+                throw new Error(DoctorProfileError.SPECIALTY_NOT_FOUND)
+            }
             const doctorEducation =
                 await this.prisma.doctorEducation.findUnique({
                     where: {
-                        doctorId_medicalSchoolId_degree_year: {
+                        doctorId_medicalSchoolId_degree_year_specialtyId: {
                             doctorId: userId,
-                            medicalSchoolId: medicalSchoolId,
-                            degree: degree,
-                            year: year,
+                            medicalSchoolId,
+                            degree,
+                            year,
+                            specialtyId,
                         },
                     },
                 })
@@ -196,10 +207,11 @@ export class DoctorProfileService {
                     degree,
                     year,
                     medicalSchoolId,
+                    specialtyId,
                 },
             })
         } catch (error) {
-            return exceptionHandler(error)
+            return errorHandler(error)
         }
     }
 
@@ -207,11 +219,13 @@ export class DoctorProfileService {
         try {
             const {
                 medicalSchoolId,
+                specialtyId,
                 degree,
                 year,
                 updatedMedicalSchoolId,
                 updatedDegree,
                 updatedYear,
+                updatedSpecialtyId,
             } = dto
             const medicalSchool = await this.prisma.medicalSchool.findUnique({
                 where: { id: medicalSchoolId },
@@ -226,14 +240,27 @@ export class DoctorProfileService {
             if (!updatedMedicalSchool) {
                 throw new Error(DoctorProfileError.MEDICAL_SCHOOL_NOT_FOUND)
             }
+            const specialty = await this.prisma.specialty.findUnique({
+                where: { id: specialtyId },
+            })
+            if (!specialty) {
+                throw new Error(DoctorProfileError.SPECIALTY_NOT_FOUND)
+            }
+            const updatedSpecialty = await this.prisma.specialty.findUnique({
+                where: { id: updatedSpecialtyId },
+            })
+            if (!updatedSpecialty) {
+                throw new Error(DoctorProfileError.SPECIALTY_NOT_FOUND)
+            }
             const doctorEducation =
                 await this.prisma.doctorEducation.findUnique({
                     where: {
-                        doctorId_medicalSchoolId_degree_year: {
+                        doctorId_medicalSchoolId_degree_year_specialtyId: {
                             doctorId: userId,
-                            medicalSchoolId: medicalSchoolId,
-                            degree: degree,
-                            year: year,
+                            medicalSchoolId,
+                            specialtyId,
+                            degree,
+                            year,
                         },
                     },
                 })
@@ -242,45 +269,54 @@ export class DoctorProfileService {
             }
             return this.prisma.doctorEducation.update({
                 where: {
-                    doctorId_medicalSchoolId_degree_year: {
+                    doctorId_medicalSchoolId_degree_year_specialtyId: {
                         doctorId: userId,
-                        medicalSchoolId: medicalSchoolId,
-                        degree: degree,
-                        year: year,
+                        medicalSchoolId,
+                        degree,
+                        year,
+                        specialtyId,
                     },
                 },
                 data: {
                     degree: updatedDegree,
                     year: updatedYear,
                     medicalSchoolId: updatedMedicalSchoolId,
+                    specialtyId: updatedSpecialtyId,
                 },
             })
         } catch (error) {
-            return exceptionHandler(error)
+            return errorHandler(error)
         }
     }
 
     async deleteEducation(dto: DoctorEducationDto, userId: string) {
         try {
-            const { medicalSchoolId, degree, year } = dto
+            const { medicalSchoolId, specialtyId, degree, year } = dto
             const medicalSchool = await this.prisma.medicalSchool.findUnique({
                 where: { id: medicalSchoolId },
             })
             if (!medicalSchool) {
                 throw new Error(DoctorProfileError.MEDICAL_SCHOOL_NOT_FOUND)
             }
+            const specialty = await this.prisma.specialty.findUnique({
+                where: { id: specialtyId },
+            })
+            if (!specialty) {
+                throw new Error(DoctorProfileError.SPECIALTY_NOT_FOUND)
+            }
             return this.prisma.doctorEducation.delete({
                 where: {
-                    doctorId_medicalSchoolId_degree_year: {
+                    doctorId_medicalSchoolId_degree_year_specialtyId: {
                         doctorId: userId,
-                        medicalSchoolId: medicalSchoolId,
-                        degree: degree,
-                        year: year,
+                        medicalSchoolId,
+                        degree,
+                        year,
+                        specialtyId,
                     },
                 },
             })
         } catch (error) {
-            return exceptionHandler(error)
+            return errorHandler(error)
         }
     }
 }

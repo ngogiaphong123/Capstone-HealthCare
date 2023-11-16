@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { CloudinaryService } from '../cloudinary/cloudinary.service'
-import { exceptionHandler } from '../common/exception'
 import { EditAccountDto } from './dto'
+import { errorHandler } from '../common/errors'
 
 @Injectable()
 export class AccountService {
@@ -61,7 +61,7 @@ export class AccountService {
                 },
             })
         } catch (error) {
-            return exceptionHandler(error)
+            return errorHandler(error)
         }
     }
 
@@ -84,7 +84,7 @@ export class AccountService {
             })
             return user
         } catch (error) {
-            return exceptionHandler(error)
+            return errorHandler(error)
         }
     }
 }

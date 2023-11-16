@@ -17,4 +17,8 @@ export class UpdateEducationDto extends DoctorEducationDto {
     @IsNotEmpty({ message: 'Updated graduation year cannot be empty' })
     @IsString({ message: 'Updated graduation year must be a string' })
     updatedYear: string
+
+    @IsNotEmpty({ message: 'Updated specialty id cannot be empty' })
+    @IsString({ message: 'Updated specialty id must be a string' })
+    updatedSpecialtyId: string
 }

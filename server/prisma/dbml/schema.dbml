@@ -38,8 +38,8 @@ Table Patient {
 Table HealthRecord {
   gender Gender
   bloodType String
-  height Int
-  weight Int
+  height Float
+  weight Float
   birthDate DateTime
   bmi Float
   patient Patient [not null]
@@ -86,6 +86,7 @@ Table Specialty {
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
   doctorSpecialties DoctorSpecialty [not null]
+  DoctorEducation DoctorEducation [not null]
 }
 
 Table MedicalSchool {
@@ -104,15 +105,17 @@ Table MedicalSchool {
 Table DoctorEducation {
   doctorId String [not null]
   medicalSchoolId String [not null]
+  specialtyId String [not null]
   degree Degree [not null]
   medicalSchool MedicalSchool [not null]
   doctor Doctor [not null]
   year String [not null]
+  major Specialty [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
 
   indexes {
-    (doctorId, medicalSchoolId, degree, year) [pk]
+    (doctorId, medicalSchoolId, degree, year, specialtyId) [pk]
   }
 }
 
@@ -198,15 +201,6 @@ Table MedicinePrescription {
   }
 }
 
-Enum ConditionType {
-  DISEASE
-  ALLERGY
-  SYMPTOM
-  PAST_SURGERY
-  FAMILY_HISTORY
-  OTHER
-}
-
 Enum Role {
   PATIENT
   DOCTOR
@@ -233,11 +227,23 @@ Enum Gender {
 }
 
 Enum Degree {
-  RESIDENT_TRAINING
-  SPECIALIZED_LEVEL_1
-  SPECIALIZED_LEVEL_2
+  DOCTOR_OF_MEDICINE
+  RESIDENT_DOCTOR
+  FIRST_DEGREE_SPECIALIST
+  SECOND_DEGREE_SPECIALIST
   MASTER
   PHD
+  ASSIOCATE_PROFESSOR
+  PROFESSOR
+}
+
+Enum ConditionType {
+  DISEASE
+  ALLERGY
+  SYMPTOM
+  PAST_SURGERY
+  FAMILY_HISTORY
+  OTHER
 }
 
 Ref: Patient.id - User.id
@@ -253,6 +259,8 @@ Ref: HealthRecordCondition.userId > User.id
 Ref: DoctorEducation.medicalSchoolId > MedicalSchool.id
 
 Ref: DoctorEducation.doctorId > Doctor.id
+
+Ref: DoctorEducation.specialtyId > Specialty.id
 
 Ref: DoctorSpecialty.doctorId > Doctor.id
 
