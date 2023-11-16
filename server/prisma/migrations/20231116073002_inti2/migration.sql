@@ -8,4 +8,4 @@
 -- AlterTable
 ALTER TABLE `DoctorEducation` DROP PRIMARY KEY,
     DROP COLUMN `id`,
-    ADD PRIMARY KEY (`doctorId`, `medicalSchoolId`);
+    ADD PRIMARY KEY (`doctorId`, `medicalSchoolId`, `degree`, `year`);

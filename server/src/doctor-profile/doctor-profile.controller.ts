@@ -16,7 +16,11 @@ import { JwtAuthGuard, RolesGuard } from '../common/guards'
 import { GetCurrentUser, ResponseMessage, Roles } from '../common/decorators'
 import { Role } from '@prisma/client'
 import { DoctorProfileService } from './doctor-profile.service'
-import { DoctorEducationDto, DoctorSpecialtyDto } from './dto'
+import {
+    DoctorEducationDto,
+    DoctorSpecialtyDto,
+    UpdateEducationDto,
+} from './dto'
 
 @Controller('doctor-profile')
 @UseInterceptors(ResTransformInterceptor)
@@ -81,19 +85,19 @@ export class DoctorProfileController {
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('Education updated successfully')
     async updateEducation(
-        @Body() dto: DoctorEducationDto,
+        @Body() dto: UpdateEducationDto,
         @GetCurrentUser('id') userId: string,
     ) {
         return this.doctorProfileService.updateEducation(dto, userId)
     }
 
-    @Delete('education/:id')
+    @Delete('education')
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('Education deleted successfully')
     async deleteEducation(
         @GetCurrentUser('id') userId: string,
-        @Param('id') id: string,
+        @Body() dto: DoctorEducationDto,
     ) {
-        return this.doctorProfileService.deleteEducation(id, userId)
+        return this.doctorProfileService.deleteEducation(dto, userId)
     }
 }

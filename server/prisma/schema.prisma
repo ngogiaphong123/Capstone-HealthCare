@@ -33,20 +33,19 @@ model User {
 }
 
 model Patient {
-    id String @id @default(uuid())
-
-    user          User           @relation(fields: [userId], references: [id])
-    userId        String         @unique
-    healthRecords HealthRecord[]
+    user         User          @relation(fields: [id], references: [id])
+    id           String
+    healthRecord HealthRecord?
 
     createdAt     DateTime       @default(now())
     updatedAt     DateTime       @updatedAt
     appointments  Appointment[]
     prescriptions Prescription[]
+
+    @@id([id])
 }
 
 model HealthRecord {
-    id        String    @id @default(uuid())
     gender    Gender?
     bloodType String?
     height    Int?
@@ -55,12 +54,14 @@ model HealthRecord {
     bmi       Float?
 
     patient   Patient @relation(fields: [patientId], references: [id])
-    patientId String
+    patientId String  @unique
 
     healthRecordConditions HealthRecordCondition[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    @@id([patientId])
 }
 
 model Condition {
@@ -79,7 +80,7 @@ model HealthRecordCondition {
     note     String?       @default("")
     type     ConditionType
 
-    healthRecord   HealthRecord @relation(fields: [healthRecordId], references: [id])
+    healthRecord   HealthRecord @relation(fields: [healthRecordId], references: [patientId])
     healthRecordId String
 
     condition   Condition @relation(fields: [conditionId], references: [id])
@@ -92,15 +93,6 @@ model HealthRecordCondition {
     updatedAt DateTime @updatedAt
 
     @@id([healthRecordId, conditionId])
-}
-
-enum ConditionType {
-    DISEASE
-    ALLERGY
-    SYMPTOM
-    PAST_SURGERY
-    FAMILY_HISTORY
-    OTHER
 }
 
 model Specialty {
@@ -139,7 +131,7 @@ model DoctorEducation {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    @@id([doctorId, medicalSchoolId])
+    @@id([doctorId, medicalSchoolId, degree, year])
 }
 
 model DoctorSpecialty {
@@ -157,10 +149,8 @@ model DoctorSpecialty {
 }
 
 model Doctor {
-    id String @id @default(uuid())
-
-    user   User   @relation(fields: [userId], references: [id])
-    userId String @unique
+    user User   @relation(fields: [id], references: [id])
+    id   String @unique
 
     appointments  Appointment[]
     prescriptions Prescription[]
@@ -265,4 +255,13 @@ enum Degree {
     SPECIALIZED_LEVEL_2
     MASTER
     PHD
+}
+
+enum ConditionType {
+    DISEASE
+    ALLERGY
+    SYMPTOM
+    PAST_SURGERY
+    FAMILY_HISTORY
+    OTHER
 }

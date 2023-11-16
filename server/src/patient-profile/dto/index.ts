@@ -1,1 +1,1 @@
-export * from './health-record-condition.dto'
+export * from './hrc.dto'

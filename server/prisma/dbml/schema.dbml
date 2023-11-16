@@ -22,18 +22,20 @@ Table User {
 }
 
 Table Patient {
-  id String [pk]
   user User [not null]
-  userId String [unique, not null]
-  healthRecords HealthRecord [not null]
+  id String [pk]
+  healthRecord HealthRecord
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
   appointments Appointment [not null]
   prescriptions Prescription [not null]
+
+  indexes {
+    (id) [pk]
+  }
 }
 
 Table HealthRecord {
-  id String [pk]
   gender Gender
   bloodType String
   height Int
@@ -41,10 +43,14 @@ Table HealthRecord {
   birthDate DateTime
   bmi Float
   patient Patient [not null]
-  patientId String [not null]
+  patientId String [pk]
   healthRecordConditions HealthRecordCondition [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
+
+  indexes {
+    (patientId) [pk]
+  }
 }
 
 Table Condition {
@@ -106,7 +112,7 @@ Table DoctorEducation {
   updatedAt DateTime [not null]
 
   indexes {
-    (doctorId, medicalSchoolId) [pk]
+    (doctorId, medicalSchoolId, degree, year) [pk]
   }
 }
 
@@ -125,9 +131,8 @@ Table DoctorSpecialty {
 }
 
 Table Doctor {
-  id String [pk]
   user User [not null]
-  userId String [unique, not null]
+  id String [unique, not null]
   appointments Appointment [not null]
   prescriptions Prescription [not null]
   createdAt DateTime [default: `now()`, not null]
@@ -235,11 +240,11 @@ Enum Degree {
   PHD
 }
 
-Ref: Patient.userId - User.id
+Ref: Patient.id - User.id
 
-Ref: HealthRecord.patientId > Patient.id
+Ref: HealthRecord.patientId - Patient.id
 
-Ref: HealthRecordCondition.healthRecordId > HealthRecord.id
+Ref: HealthRecordCondition.healthRecordId > HealthRecord.patientId
 
 Ref: HealthRecordCondition.conditionId > Condition.id
 
@@ -253,7 +258,7 @@ Ref: DoctorSpecialty.doctorId > Doctor.id
 
 Ref: DoctorSpecialty.specialtyId > Specialty.id
 
-Ref: Doctor.userId - User.id
+Ref: Doctor.id - User.id
 
 Ref: Appointment.patientId > Patient.id
 

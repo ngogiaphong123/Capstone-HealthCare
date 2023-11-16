@@ -6,7 +6,7 @@ export class HealthRecordConditionDto {
     @IsEnum(Severity, {
         message: 'Severity must be LOW, MEDIUM or HIGH',
     })
-    severity: string
+    severity: Severity
 
     @IsNotEmpty({ message: 'Note cannot be empty' })
     @IsString({ message: 'Note must be a string' })
@@ -17,7 +17,7 @@ export class HealthRecordConditionDto {
         message:
             'Type must be DISEASE, ALLERGY, SYMPTOM, PAST_SURGERY, FAMILY_HISTORY or OTHER',
     })
-    type: string
+    type: ConditionType
 
     @IsNotEmpty({ message: 'Condition id cannot be empty' })
     @IsString({ message: 'Condition id must be a string' })

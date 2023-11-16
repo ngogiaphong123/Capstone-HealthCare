@@ -23,22 +23,26 @@ CREATE TABLE `User` (
 -- CreateTable
 CREATE TABLE `Patient` (
     `id` VARCHAR(191) NOT NULL,
-    `userId` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `Patient_userId_key`(`userId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `HealthRecord` (
-    `id` VARCHAR(191) NOT NULL,
+    `gender` ENUM('MALE', 'FEMALE', 'OTHER') NULL,
+    `bloodType` VARCHAR(191) NULL,
+    `height` INTEGER NULL,
+    `weight` INTEGER NULL,
+    `birthDate` DATETIME(3) NULL,
+    `bmi` DOUBLE NULL,
     `patientId` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
-    PRIMARY KEY (`id`)
+    UNIQUE INDEX `HealthRecord_patientId_key`(`patientId`),
+    PRIMARY KEY (`patientId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -46,7 +50,6 @@ CREATE TABLE `Condition` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NOT NULL,
-    `type` ENUM('DISEASE', 'ALLERGY', 'SYMPTOM', 'PAST_SURGERY', 'FAMILY_HISTORY', 'OTHER') NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -55,45 +58,79 @@ CREATE TABLE `Condition` (
 
 -- CreateTable
 CREATE TABLE `HealthRecordCondition` (
-    `id` VARCHAR(191) NOT NULL,
+    `severity` ENUM('LOW', 'MEDIUM', 'HIGH') NOT NULL DEFAULT 'LOW',
+    `note` VARCHAR(191) NULL DEFAULT '',
+    `type` ENUM('DISEASE', 'ALLERGY', 'SYMPTOM', 'PAST_SURGERY', 'FAMILY_HISTORY', 'OTHER') NOT NULL,
     `healthRecordId` VARCHAR(191) NOT NULL,
     `conditionId` VARCHAR(191) NOT NULL,
-    `doctorId` VARCHAR(191) NULL,
+    `userId` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `HealthRecordCondition_doctorId_key`(`doctorId`),
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`healthRecordId`, `conditionId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `DoctorSpecialty` (
+CREATE TABLE `Specialty` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `DoctorSpecialty_name_key`(`name`),
+    UNIQUE INDEX `Specialty_name_key`(`name`),
     PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `MedicalSchool` (
+    `id` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `abbr` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `MedicalSchool_name_abbr_key`(`name`, `abbr`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `DoctorEducation` (
+    `id` VARCHAR(191) NOT NULL,
+    `doctorId` VARCHAR(191) NOT NULL,
+    `medicalSchoolId` VARCHAR(191) NOT NULL,
+    `degree` ENUM('RESIDENT_TRAINING', 'SPECIALIZED_LEVEL_1', 'SPECIALIZED_LEVEL_2', 'MASTER', 'PHD') NOT NULL,
+    `year` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `DoctorSpecialty` (
+    `doctorId` VARCHAR(191) NOT NULL,
+    `specialtyId` VARCHAR(191) NOT NULL,
+    `experience` INTEGER NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`doctorId`, `specialtyId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Doctor` (
     `id` VARCHAR(191) NOT NULL,
-    `userId` VARCHAR(191) NOT NULL,
-    `specialtyId` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `Doctor_userId_key`(`userId`),
-    UNIQUE INDEX `Doctor_specialtyId_key`(`specialtyId`),
-    PRIMARY KEY (`id`)
+    UNIQUE INDEX `Doctor_id_key`(`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Appointment` (
     `id` VARCHAR(191) NOT NULL,
     `date` DATETIME(3) NOT NULL,
+    `notes` VARCHAR(191) NULL,
     `status` ENUM('PENDING', 'ACCEPTED', 'REJECTED', 'CANCELED', 'FINISHED') NOT NULL,
     `patientId` VARCHAR(191) NOT NULL,
     `doctorId` VARCHAR(191) NOT NULL,
@@ -122,6 +159,11 @@ CREATE TABLE `Prescription` (
 CREATE TABLE `Medicine` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
+    `image` TEXT NOT NULL,
+    `composition` TEXT NOT NULL,
+    `uses` TEXT NOT NULL,
+    `sideEffects` TEXT NOT NULL,
+    `manufacturer` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -133,6 +175,7 @@ CREATE TABLE `MedicinePrescription` (
     `medicineId` VARCHAR(191) NOT NULL,
     `prescriptionId` VARCHAR(191) NOT NULL,
     `quantity` INTEGER NOT NULL,
+    `dosage` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -140,25 +183,34 @@ CREATE TABLE `MedicinePrescription` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `Patient` ADD CONSTRAINT `Patient_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Patient` ADD CONSTRAINT `Patient_id_fkey` FOREIGN KEY (`id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `HealthRecord` ADD CONSTRAINT `HealthRecord_patientId_fkey` FOREIGN KEY (`patientId`) REFERENCES `Patient`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `HealthRecordCondition` ADD CONSTRAINT `HealthRecordCondition_healthRecordId_fkey` FOREIGN KEY (`healthRecordId`) REFERENCES `HealthRecord`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `HealthRecordCondition` ADD CONSTRAINT `HealthRecordCondition_healthRecordId_fkey` FOREIGN KEY (`healthRecordId`) REFERENCES `HealthRecord`(`patientId`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `HealthRecordCondition` ADD CONSTRAINT `HealthRecordCondition_conditionId_fkey` FOREIGN KEY (`conditionId`) REFERENCES `Condition`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `HealthRecordCondition` ADD CONSTRAINT `HealthRecordCondition_doctorId_fkey` FOREIGN KEY (`doctorId`) REFERENCES `Doctor`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `HealthRecordCondition` ADD CONSTRAINT `HealthRecordCondition_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Doctor` ADD CONSTRAINT `Doctor_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `DoctorEducation` ADD CONSTRAINT `DoctorEducation_medicalSchoolId_fkey` FOREIGN KEY (`medicalSchoolId`) REFERENCES `MedicalSchool`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Doctor` ADD CONSTRAINT `Doctor_specialtyId_fkey` FOREIGN KEY (`specialtyId`) REFERENCES `DoctorSpecialty`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `DoctorEducation` ADD CONSTRAINT `DoctorEducation_doctorId_fkey` FOREIGN KEY (`doctorId`) REFERENCES `Doctor`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `DoctorSpecialty` ADD CONSTRAINT `DoctorSpecialty_doctorId_fkey` FOREIGN KEY (`doctorId`) REFERENCES `Doctor`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `DoctorSpecialty` ADD CONSTRAINT `DoctorSpecialty_specialtyId_fkey` FOREIGN KEY (`specialtyId`) REFERENCES `Specialty`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Doctor` ADD CONSTRAINT `Doctor_id_fkey` FOREIGN KEY (`id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Appointment` ADD CONSTRAINT `Appointment_patientId_fkey` FOREIGN KEY (`patientId`) REFERENCES `Patient`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

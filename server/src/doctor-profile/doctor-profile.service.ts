@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
-import { DoctorEducationDto, DoctorSpecialtyDto } from './dto'
+import {
+    DoctorEducationDto,
+    DoctorSpecialtyDto,
+    UpdateEducationDto,
+} from './dto'
 import { DoctorProfileError } from '../common/errors'
 import { exceptionHandler } from '../common/exception'
-import { Degree } from '@prisma/client'
 
 @Injectable()
 export class DoctorProfileService {
@@ -12,7 +15,7 @@ export class DoctorProfileService {
     async getSpecialties(userId: string) {
         try {
             const doctor = await this.prisma.doctor.findUnique({
-                where: { userId },
+                where: { id: userId },
                 include: {
                     doctorSpecialties: {
                         select: {
@@ -40,7 +43,7 @@ export class DoctorProfileService {
         try {
             const { specialtyId, experience } = dto
             const doctor = await this.prisma.doctor.findUnique({
-                where: { userId },
+                where: { id: userId },
             })
             if (!doctor) {
                 throw new Error(DoctorProfileError.DOCTOR_NOT_FOUND)
@@ -67,7 +70,7 @@ export class DoctorProfileService {
         try {
             const { specialtyId, experience } = dto
             const doctor = await this.prisma.doctor.findUnique({
-                where: { userId },
+                where: { id: userId },
             })
             if (!doctor) {
                 throw new Error(DoctorProfileError.DOCTOR_NOT_FOUND)
@@ -109,7 +112,7 @@ export class DoctorProfileService {
     async deleteSpecialty(id: string, userId: string) {
         try {
             const doctor = await this.prisma.doctor.findUnique({
-                where: { userId },
+                where: { id: userId },
             })
             if (!doctor) {
                 throw new Error(DoctorProfileError.DOCTOR_NOT_FOUND)
@@ -136,7 +139,7 @@ export class DoctorProfileService {
     async getEducation(userId: string) {
         try {
             const doctor = await this.prisma.doctor.findUnique({
-                where: { userId },
+                where: { id: userId },
                 include: {
                     doctorEducations: {
                         select: {
@@ -165,24 +168,31 @@ export class DoctorProfileService {
     async addEducation(dto: DoctorEducationDto, userId: string) {
         try {
             const { medicalSchoolId, degree, year } = dto
-            if (Degree[degree] === undefined) {
-                throw new Error(DoctorProfileError.INVALID_DEGREE)
-            }
-            const doctor = await this.prisma.doctor.findUnique({
-                where: { userId },
-            })
-            if (!doctor) {
-                throw new Error(DoctorProfileError.DOCTOR_NOT_FOUND)
-            }
             const medicalSchool = await this.prisma.medicalSchool.findUnique({
                 where: { id: medicalSchoolId },
             })
             if (!medicalSchool) {
                 throw new Error(DoctorProfileError.MEDICAL_SCHOOL_NOT_FOUND)
             }
+            const doctorEducation =
+                await this.prisma.doctorEducation.findUnique({
+                    where: {
+                        doctorId_medicalSchoolId_degree_year: {
+                            doctorId: userId,
+                            medicalSchoolId: medicalSchoolId,
+                            degree: degree,
+                            year: year,
+                        },
+                    },
+                })
+            if (doctorEducation) {
+                throw new Error(
+                    DoctorProfileError.DOCTOR_EDUCATION_ALREADY_EXISTS,
+                )
+            }
             return this.prisma.doctorEducation.create({
                 data: {
-                    doctorId: doctor.id,
+                    doctorId: userId,
                     degree,
                     year,
                     medicalSchoolId,
@@ -193,30 +203,37 @@ export class DoctorProfileService {
         }
     }
 
-    async updateEducation(dto: DoctorEducationDto, userId: string) {
+    async updateEducation(dto: UpdateEducationDto, userId: string) {
         try {
-            const { medicalSchoolId, degree, year } = dto
-            if (Degree[degree] === undefined) {
-                throw new Error(DoctorProfileError.INVALID_DEGREE)
-            }
-            const doctor = await this.prisma.doctor.findUnique({
-                where: { userId },
-            })
-            if (!doctor) {
-                throw new Error(DoctorProfileError.DOCTOR_NOT_FOUND)
-            }
+            const {
+                medicalSchoolId,
+                degree,
+                year,
+                updatedMedicalSchoolId,
+                updatedDegree,
+                updatedYear,
+            } = dto
             const medicalSchool = await this.prisma.medicalSchool.findUnique({
                 where: { id: medicalSchoolId },
             })
             if (!medicalSchool) {
                 throw new Error(DoctorProfileError.MEDICAL_SCHOOL_NOT_FOUND)
             }
+            const updatedMedicalSchool =
+                await this.prisma.medicalSchool.findUnique({
+                    where: { id: updatedMedicalSchoolId },
+                })
+            if (!updatedMedicalSchool) {
+                throw new Error(DoctorProfileError.MEDICAL_SCHOOL_NOT_FOUND)
+            }
             const doctorEducation =
                 await this.prisma.doctorEducation.findUnique({
                     where: {
-                        doctorId_medicalSchoolId: {
-                            doctorId: doctor.id,
-                            medicalSchoolId: medicalSchool.id,
+                        doctorId_medicalSchoolId_degree_year: {
+                            doctorId: userId,
+                            medicalSchoolId: medicalSchoolId,
+                            degree: degree,
+                            year: year,
                         },
                     },
                 })
@@ -225,14 +242,17 @@ export class DoctorProfileService {
             }
             return this.prisma.doctorEducation.update({
                 where: {
-                    doctorId_medicalSchoolId: {
-                        doctorId: doctor.id,
-                        medicalSchoolId: medicalSchool.id,
+                    doctorId_medicalSchoolId_degree_year: {
+                        doctorId: userId,
+                        medicalSchoolId: medicalSchoolId,
+                        degree: degree,
+                        year: year,
                     },
                 },
                 data: {
-                    degree,
-                    year,
+                    degree: updatedDegree,
+                    year: updatedYear,
+                    medicalSchoolId: updatedMedicalSchoolId,
                 },
             })
         } catch (error) {
@@ -240,25 +260,22 @@ export class DoctorProfileService {
         }
     }
 
-    async deleteEducation(id: string, userId: string) {
+    async deleteEducation(dto: DoctorEducationDto, userId: string) {
         try {
-            const doctor = await this.prisma.doctor.findUnique({
-                where: { userId },
-            })
-            if (!doctor) {
-                throw new Error(DoctorProfileError.DOCTOR_NOT_FOUND)
-            }
+            const { medicalSchoolId, degree, year } = dto
             const medicalSchool = await this.prisma.medicalSchool.findUnique({
-                where: { id },
+                where: { id: medicalSchoolId },
             })
             if (!medicalSchool) {
                 throw new Error(DoctorProfileError.MEDICAL_SCHOOL_NOT_FOUND)
             }
             return this.prisma.doctorEducation.delete({
                 where: {
-                    doctorId_medicalSchoolId: {
-                        doctorId: doctor.id,
-                        medicalSchoolId: medicalSchool.id,
+                    doctorId_medicalSchoolId_degree_year: {
+                        doctorId: userId,
+                        medicalSchoolId: medicalSchoolId,
+                        degree: degree,
+                        year: year,
                     },
                 },
             })
