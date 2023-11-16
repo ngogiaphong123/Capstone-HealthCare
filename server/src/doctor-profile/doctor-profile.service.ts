@@ -36,20 +36,6 @@ export class DoctorProfileService {
         }
     }
 
-    async searchSpecialties(name: string) {
-        try {
-            return this.prisma.specialty.findMany({
-                where: {
-                    name: {
-                        contains: name,
-                    },
-                },
-            })
-        } catch (error) {
-            return exceptionHandler(error)
-        }
-    }
-
     async addSpecialty(dto: DoctorSpecialtyDto, userId: string) {
         try {
             const { specialtyId, experience } = dto
@@ -171,29 +157,6 @@ export class DoctorProfileService {
                 throw new Error(DoctorProfileError.DOCTOR_NOT_FOUND)
             }
             return doctor.doctorEducations
-        } catch (error) {
-            return exceptionHandler(error)
-        }
-    }
-
-    async searchMedicalSchools(name: string) {
-        try {
-            return this.prisma.medicalSchool.findMany({
-                where: {
-                    OR: [
-                        {
-                            name: {
-                                contains: name,
-                            },
-                        },
-                        {
-                            abbr: {
-                                contains: name,
-                            },
-                        },
-                    ],
-                },
-            })
         } catch (error) {
             return exceptionHandler(error)
         }

@@ -5,17 +5,6 @@ import { PrismaService } from '../prisma/prisma.service'
 export class PatientProfileService {
     constructor(private prisma: PrismaService) {}
 
-    async searchCondition(condition: string) {
-        const conditions = await this.prisma.condition.findMany({
-            where: {
-                name: {
-                    contains: condition,
-                },
-            },
-        })
-        return conditions
-    }
-
     async getHealthRecords(userId: string) {
         const user = await this.prisma.user.findUnique({
             where: {

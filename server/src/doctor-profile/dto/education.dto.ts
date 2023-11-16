@@ -1,5 +1,5 @@
 import { Degree } from '@prisma/client'
-import { IsNotEmpty, IsString } from 'class-validator'
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator'
 
 export class DoctorEducationDto {
     @IsNotEmpty({ message: 'Medical school id cannot be empty' })
@@ -7,7 +7,10 @@ export class DoctorEducationDto {
     medicalSchoolId: string
 
     @IsNotEmpty({ message: 'Degree cannot be empty' })
-    @IsString({ message: 'Degree must be a string' })
+    @IsEnum(Degree, {
+        message:
+            'Degree must be RESIDENT_TRAINING, SPECIALIZED_LEVEL_1, SPECIALIZED_LEVEL_2, MASTER or PHD',
+    })
     degree: Degree
 
     @IsNotEmpty({ message: 'Graduation year cannot be empty' })

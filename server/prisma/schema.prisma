@@ -85,7 +85,7 @@ model HealthRecordCondition {
     condition   Condition @relation(fields: [conditionId], references: [id])
     conditionId String
 
-    user   User   @relation(fields: [userId], references: [id])
+    user   User   @relation(fields: [userId], references: [id]) // createdBy user
     userId String
 
     createdAt DateTime @default(now())

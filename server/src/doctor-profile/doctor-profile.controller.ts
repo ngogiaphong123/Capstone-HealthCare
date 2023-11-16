@@ -17,9 +17,8 @@ import { GetCurrentUser, ResponseMessage, Roles } from '../common/decorators'
 import { Role } from '@prisma/client'
 import { DoctorProfileService } from './doctor-profile.service'
 import { DoctorEducationDto, DoctorSpecialtyDto } from './dto'
-import { SearchDto } from './dto'
 
-@Controller('doctor')
+@Controller('doctor-profile')
 @UseInterceptors(ResTransformInterceptor)
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.DOCTOR)
@@ -31,13 +30,6 @@ export class DoctorProfileController {
     @ResponseMessage('Doctor specialties')
     async getSpecialties(@GetCurrentUser('id') userId: string) {
         return this.doctorProfileService.getSpecialties(userId)
-    }
-
-    @Post('specialty/search')
-    @HttpCode(HttpStatus.OK)
-    @ResponseMessage('All specialties')
-    async getAllSpecialties(@Body() dto: SearchDto) {
-        return this.doctorProfileService.searchSpecialties(dto.name)
     }
 
     @Post('specialty')
@@ -75,13 +67,6 @@ export class DoctorProfileController {
     @ResponseMessage('Doctor education')
     async getEducation(@GetCurrentUser('id') userId: string) {
         return this.doctorProfileService.getEducation(userId)
-    }
-
-    @Post('education/search')
-    @HttpCode(HttpStatus.OK)
-    @ResponseMessage('All medical schools by name')
-    async getAllEducation(@Body() dto: SearchDto) {
-        return this.doctorProfileService.searchMedicalSchools(dto.name)
     }
 
     @Post('education')
