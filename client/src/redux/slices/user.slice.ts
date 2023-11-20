@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import AuthConfig from '@/config/auth.config'
 import { setCookie, unsetCookie } from '@lib/utils'
 import { handleAxiosError, privateApi, publicApi } from '@lib/axios'
-import { User } from './types/user.type'
+import { User } from './types/type'
 
 const initialState = {
   user: {} as User,

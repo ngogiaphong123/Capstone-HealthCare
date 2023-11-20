@@ -35,7 +35,7 @@ import { editProfile, uploadAvatar } from '@redux/slices/user.slice'
 import { useToast } from '@components/ui/use-toast'
 import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar'
 import { useState } from 'react'
-import { Skeleton } from '../../../components/ui/skeleton'
+import { Skeleton } from '@components/ui/skeleton'
 
 const accountFormSchema = z.object({
   name: z
