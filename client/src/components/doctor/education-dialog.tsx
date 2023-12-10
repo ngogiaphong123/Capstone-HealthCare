@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-import { Dispatch, SetStateAction, useEffect } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import * as z from 'zod'
 import { Degree } from '@redux/slices/types/enum'
 import { useForm } from 'react-hook-form'
@@ -57,6 +57,7 @@ export function EducationDialog({
   openEducation: boolean
   setOpenEducation: Dispatch<SetStateAction<boolean>>
 }) {
+  const [searchTerm, setSearchTerm] = useState<string>('NONE')
   const dispatch = useDispatch<AppDispatch>()
   const medicalSchools = useAppSelector(state => state.education.medicalSchools)
   const specialties = useAppSelector(state => state.specialty.specialties)
@@ -81,8 +82,8 @@ export function EducationDialog({
     }))
   }
   useEffect(() => {
-    dispatch(searchMedicalSchools(''))
-  }, [])
+    dispatch(searchMedicalSchools(searchTerm))
+  }, [searchTerm])
 
   return (
     <Dialog open={openEducation} onOpenChange={setOpenEducation}>
@@ -121,7 +122,6 @@ export function EducationDialog({
                         <SelectLabel>Degree</SelectLabel>
                         {Object.values(Degree).map(degree => (
                           <SelectItem key={degree} value={degree}>
-                            {/* replace _ by  and capitalize first char at index 0*/}
                             {degree.replace(/_/g, ' ').charAt(0).toUpperCase() +
                               degree.replace(/_/g, ' ').slice(1).toLowerCase()}
                           </SelectItem>

@@ -15,7 +15,7 @@ export class DoctorProfileService {
         try {
             const doctor = await this.prisma.doctor.findUnique({
                 where: { id: userId },
-                include: {
+                select: {
                     doctorSpecialties: {
                         select: {
                             experience: true,
@@ -53,13 +53,14 @@ export class DoctorProfileService {
             if (!specialty) {
                 throw new Error(DoctorProfileError.SPECIALTY_NOT_FOUND)
             }
-            return this.prisma.doctorSpecialty.create({
+            await this.prisma.doctorSpecialty.create({
                 data: {
                     doctorId: doctor.id,
                     experience,
                     specialtyId,
                 },
             })
+            return this.getSpecialties(userId)
         } catch (error) {
             return errorHandler(error)
         }
@@ -92,7 +93,7 @@ export class DoctorProfileService {
             if (!doctorSpecialty) {
                 throw new Error(DoctorProfileError.DOCTOR_SPECIALTY_NOT_FOUND)
             }
-            return this.prisma.doctorSpecialty.update({
+            await this.prisma.doctorSpecialty.update({
                 where: {
                     doctorId_specialtyId: {
                         doctorId: doctor.id,
@@ -103,6 +104,7 @@ export class DoctorProfileService {
                     experience,
                 },
             })
+            return this.getSpecialties(userId)
         } catch (error) {
             return errorHandler(error)
         }
@@ -122,7 +124,7 @@ export class DoctorProfileService {
             if (!specialty) {
                 throw new Error(DoctorProfileError.SPECIALTY_NOT_FOUND)
             }
-            return this.prisma.doctorSpecialty.delete({
+            await this.prisma.doctorSpecialty.delete({
                 where: {
                     doctorId_specialtyId: {
                         doctorId: doctor.id,
@@ -130,6 +132,7 @@ export class DoctorProfileService {
                     },
                 },
             })
+            return this.getSpecialties(userId)
         } catch (error) {
             return errorHandler(error)
         }
@@ -146,6 +149,7 @@ export class DoctorProfileService {
                             year: true,
                             major: {
                                 select: {
+                                    id: true,
                                     name: true,
                                 },
                             },
@@ -201,7 +205,7 @@ export class DoctorProfileService {
                     DoctorProfileError.DOCTOR_EDUCATION_ALREADY_EXISTS,
                 )
             }
-            return this.prisma.doctorEducation.create({
+            await this.prisma.doctorEducation.create({
                 data: {
                     doctorId: userId,
                     degree,
@@ -210,6 +214,7 @@ export class DoctorProfileService {
                     specialtyId,
                 },
             })
+            return this.getEducation(userId)
         } catch (error) {
             return errorHandler(error)
         }
@@ -267,7 +272,7 @@ export class DoctorProfileService {
             if (!doctorEducation) {
                 throw new Error(DoctorProfileError.DOCTOR_EDUCATION_NOT_FOUND)
             }
-            return this.prisma.doctorEducation.update({
+            await this.prisma.doctorEducation.update({
                 where: {
                     doctorId_medicalSchoolId_degree_year_specialtyId: {
                         doctorId: userId,
@@ -284,6 +289,7 @@ export class DoctorProfileService {
                     specialtyId: updatedSpecialtyId,
                 },
             })
+            return this.getEducation(userId)
         } catch (error) {
             return errorHandler(error)
         }
@@ -304,7 +310,7 @@ export class DoctorProfileService {
             if (!specialty) {
                 throw new Error(DoctorProfileError.SPECIALTY_NOT_FOUND)
             }
-            return this.prisma.doctorEducation.delete({
+            await this.prisma.doctorEducation.delete({
                 where: {
                     doctorId_medicalSchoolId_degree_year_specialtyId: {
                         doctorId: userId,
@@ -315,6 +321,7 @@ export class DoctorProfileService {
                     },
                 },
             })
+            return this.getEducation(userId)
         } catch (error) {
             return errorHandler(error)
         }

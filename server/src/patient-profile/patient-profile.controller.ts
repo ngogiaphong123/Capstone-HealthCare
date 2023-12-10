@@ -13,9 +13,7 @@ import { JwtAuthGuard, RolesGuard } from '../common/guards'
 import { GetCurrentUser, ResponseMessage, Roles } from '../common/decorators'
 import { PatientProfileService } from './patient-profile.service'
 import { ResTransformInterceptor } from '../common/interceptors'
-import { HRCDto, HRCIdDto, HRDto } from './dto'
-import { UpdateHRCDto } from './dto/update-hrc.dto'
-
+import { HRCDto, HRCIdDto, HRDto, UpdateHRCDto } from './dto'
 @Controller('patient-profile')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('PATIENT')
@@ -50,7 +48,7 @@ export class PatientProfileController {
         return this.patientProfileService.addCondition(dto, id)
     }
 
-    @Post('update-condition')
+    @Put('update-condition')
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('Update condition in health record')
     async updateHealthRecordCondition(
@@ -78,21 +76,17 @@ export class PatientProfileController {
         @Body() dto: HRCDto,
         @GetCurrentUser('id') id: string,
     ) {
-        return this.patientProfileService.addCondition(dto, dto.patientId, id)
+        return this.patientProfileService.doctorAddCondition(dto, id)
     }
 
     @Roles('DOCTOR')
-    @Post('doctor-update-condition')
+    @Put('doctor-update-condition')
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('Doctor update condition in health record')
     async doctorUpdateHealthRecordCondition(
         @Body() dto: UpdateHRCDto,
         @GetCurrentUser('id') id: string,
     ) {
-        return this.patientProfileService.updateCondition(
-            dto,
-            dto.patientId,
-            id,
-        )
+        return this.patientProfileService.doctorUpdateCondition(dto, id)
     }
 }

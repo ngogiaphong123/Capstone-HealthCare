@@ -22,10 +22,13 @@ model User {
     avatar         String  @db.Text
     accessToken    String? @db.Text
     refreshToken   String? @db.Text
+    bio            String? @db.Text
 
-    role                   Role                    @default(PATIENT)
-    patient                Patient?
-    doctor                 Doctor?
+    role    Role     @default(PATIENT)
+    patient Patient?
+    doctor  Doctor?
+    manager Manager?
+
     healthRecordConditions HealthRecordCondition[]
 
     createdAt DateTime @default(now())
@@ -33,14 +36,18 @@ model User {
 }
 
 model Patient {
-    user         User          @relation(fields: [id], references: [id])
+    user         User          @relation(fields: [id], references: [id], onDelete: Cascade)
     id           String
     healthRecord HealthRecord?
 
-    createdAt     DateTime       @default(now())
-    updatedAt     DateTime       @updatedAt
-    appointments  Appointment[]
-    prescriptions Prescription[]
+    appointments Appointment[]
+
+    @@id([id])
+}
+
+model Manager {
+    user User   @relation(fields: [id], references: [id], onDelete: Cascade)
+    id   String
 
     @@id([id])
 }
@@ -53,7 +60,7 @@ model HealthRecord {
     birthDate DateTime?
     bmi       Float?
 
-    patient   Patient @relation(fields: [patientId], references: [id])
+    patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
     patientId String  @unique
 
     healthRecordConditions HealthRecordCondition[]
@@ -79,15 +86,17 @@ model HealthRecordCondition {
     severity Severity      @default(LOW)
     note     String?       @default("")
     type     ConditionType
+    from     DateTime?
+    to       DateTime?
 
-    healthRecord   HealthRecord @relation(fields: [healthRecordId], references: [patientId])
+    healthRecord   HealthRecord @relation(fields: [healthRecordId], references: [patientId], onDelete: Cascade)
     healthRecordId String
 
-    condition   Condition @relation(fields: [conditionId], references: [id])
+    condition   Condition @relation(fields: [conditionId], references: [id], onDelete: Cascade)
     conditionId String
 
-    user   User   @relation(fields: [userId], references: [id]) // createdBy user
-    userId String
+    lastUpdatedBy   User   @relation(fields: [lastUpdatedById], references: [id])
+    lastUpdatedById String
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -108,9 +117,10 @@ model Specialty {
 }
 
 model MedicalSchool {
-    id   String @id @default(uuid())
-    name String
-    abbr String
+    id    String  @id @default(uuid())
+    name  String
+    abbr  String
+    image String?
 
     createdAt       DateTime          @default(now())
     updatedAt       DateTime          @updatedAt
@@ -126,7 +136,7 @@ model DoctorEducation {
 
     degree        Degree
     medicalSchool MedicalSchool @relation(fields: [medicalSchoolId], references: [id])
-    doctor        Doctor        @relation(fields: [doctorId], references: [id])
+    doctor        Doctor        @relation(fields: [doctorId], references: [id], onDelete: Cascade)
 
     year  String
     major Specialty @relation(fields: [specialtyId], references: [id])
@@ -152,14 +162,11 @@ model DoctorSpecialty {
 }
 
 model Doctor {
-    user User   @relation(fields: [id], references: [id])
+    user User   @relation(fields: [id], references: [id], onDelete: Cascade)
     id   String @unique
 
-    appointments  Appointment[]
-    prescriptions Prescription[]
+    appointments Appointment[]
 
-    createdAt         DateTime          @default(now())
-    updatedAt         DateTime          @updatedAt
     doctorEducations  DoctorEducation[]
     doctorSpecialties DoctorSpecialty[]
 }
@@ -181,30 +188,28 @@ model Appointment {
 }
 
 model Prescription {
-    id         String @id @default(uuid())
     conclusion String
     note       String @default("")
 
-    patient               Patient                @relation(fields: [patientId], references: [id])
-    patientId             String
-    doctor                Doctor                 @relation(fields: [doctorId], references: [id])
-    doctorId              String
     medicinePrescriptions MedicinePrescription[]
     appointment           Appointment            @relation(fields: [appointmentId], references: [id])
     appointmentId         String                 @unique
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    @@id([appointmentId])
 }
 
 model Medicine {
-    id           String @id @default(uuid())
+    id           String  @id @default(uuid())
     name         String
-    image        String @db.Text
-    composition  String @db.Text
-    uses         String @db.Text
-    sideEffects  String @db.Text
+    image        String  @db.Text
+    composition  String  @db.Text
+    uses         String  @db.Text
+    sideEffects  String  @db.Text
     manufacturer String
+    capacity     String?
 
     medicinePrescriptions MedicinePrescription[]
 
@@ -219,7 +224,7 @@ model MedicinePrescription {
     dosage         String?
 
     medicine     Medicine     @relation(fields: [medicineId], references: [id])
-    prescription Prescription @relation(fields: [prescriptionId], references: [id])
+    prescription Prescription @relation(fields: [prescriptionId], references: [appointmentId])
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -230,6 +235,7 @@ model MedicinePrescription {
 enum Role {
     PATIENT
     DOCTOR
+    MANAGER
 }
 
 enum Status {
@@ -259,7 +265,7 @@ enum Degree {
     SECOND_DEGREE_SPECIALIST
     MASTER
     PHD
-    ASSIOCATE_PROFESSOR
+    ASSOCIATE_PROFESSOR
     PROFESSOR
 }
 

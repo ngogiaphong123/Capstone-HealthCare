@@ -24,7 +24,6 @@ export const searchMedicalSchools = createAsyncThunk(
       const { data } = await privateApi.post('/education/search', {
         name,
       })
-      console.log(data)
       return data.data
     } catch (error: any) {
       const { message } = handleAxiosError(error)

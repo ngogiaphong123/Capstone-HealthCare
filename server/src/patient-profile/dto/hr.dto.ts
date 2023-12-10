@@ -50,7 +50,7 @@ export class HRDto {
     @IsNotEmpty({
         message: 'Birth date cannot be empty',
     })
-    birthDate: string
+    birthDate: Date
 
     @IsNumber(
         {},

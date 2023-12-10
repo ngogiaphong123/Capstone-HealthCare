@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
-import { HRCDto, HRCIdDto, HRDto } from './dto'
+import { HRCDto, HRCIdDto, HRDto, UpdateHRCDto } from './dto'
 import { PatientProfileError, errorHandler } from '../common/errors'
-import { UpdateHRCDto } from './dto/update-hrc.dto'
 
 @Injectable()
 export class PatientProfileService {
@@ -57,11 +56,7 @@ export class PatientProfileService {
         }
     }
 
-    async addCondition(
-        dto: HRCDto,
-        patientId: string,
-        doctorId: string = null,
-    ) {
+    async addCondition(dto: HRCDto, patientId: string) {
         try {
             const { conditionId, note, severity, type } = dto
             const condition = await this.prisma.condition.findUnique({
@@ -79,7 +74,7 @@ export class PatientProfileService {
             return await this.prisma.healthRecordCondition.create({
                 data: {
                     conditionId,
-                    userId: doctorId ? doctorId : patientId,
+                    lastUpdatedById: patientId,
                     healthRecordId: patientId,
                     note,
                     severity,
@@ -91,16 +86,26 @@ export class PatientProfileService {
         }
     }
 
-    async updateCondition(
-        dto: UpdateHRCDto,
-        patientId: string,
-        doctorId: string = null,
-    ) {
+    async updateCondition(dto: UpdateHRCDto, patientId: string) {
         try {
             const { conditionId, note, severity, type, updatedConditionId } =
                 dto
+            const healthRecordCondition =
+                await this.prisma.healthRecordCondition.findUnique({
+                    where: {
+                        healthRecordId_conditionId: {
+                            conditionId,
+                            healthRecordId: patientId,
+                        },
+                    },
+                })
+            if (!healthRecordCondition) {
+                throw new Error(
+                    PatientProfileError.HEALTH_RECORD_CONDITION_NOT_FOUND,
+                )
+            }
             const condition = await this.prisma.condition.findUnique({
-                where: { id: conditionId },
+                where: { id: updatedConditionId },
             })
             if (!condition) {
                 throw new Error(PatientProfileError.CONDITION_NOT_FOUND)
@@ -117,7 +122,7 @@ export class PatientProfileService {
                     note,
                     severity,
                     type,
-                    userId: doctorId ? doctorId : patientId,
+                    lastUpdatedById: patientId,
                 },
             })
         } catch (error) {
@@ -140,6 +145,86 @@ export class PatientProfileService {
                         conditionId,
                         healthRecordId: patientId,
                     },
+                },
+            })
+        } catch (error) {
+            return errorHandler(error)
+        }
+    }
+
+    async doctorAddCondition(dto: HRCDto, doctorId: string) {
+        try {
+            const { patientId, conditionId, note, severity, type } = dto
+            const condition = await this.prisma.condition.findUnique({
+                where: { id: conditionId },
+            })
+            if (!condition) {
+                throw new Error(PatientProfileError.CONDITION_NOT_FOUND)
+            }
+            const hr = await this.prisma.healthRecord.findUnique({
+                where: { patientId },
+            })
+            if (!hr) {
+                throw new Error(PatientProfileError.HEALTH_RECORD_NOT_FOUND)
+            }
+            return await this.prisma.healthRecordCondition.create({
+                data: {
+                    conditionId,
+                    lastUpdatedById: doctorId,
+                    healthRecordId: patientId,
+                    note,
+                    severity,
+                    type,
+                },
+            })
+        } catch (error) {
+            return errorHandler(error)
+        }
+    }
+
+    async doctorUpdateCondition(dto: UpdateHRCDto, doctorId: string) {
+        try {
+            const {
+                patientId,
+                conditionId,
+                note,
+                severity,
+                type,
+                updatedConditionId,
+            } = dto
+            const healthRecordCondition =
+                await this.prisma.healthRecordCondition.findUnique({
+                    where: {
+                        healthRecordId_conditionId: {
+                            conditionId,
+                            healthRecordId: patientId,
+                        },
+                    },
+                })
+            if (!healthRecordCondition) {
+                throw new Error(
+                    PatientProfileError.HEALTH_RECORD_CONDITION_NOT_FOUND,
+                )
+            }
+            const condition = await this.prisma.condition.findUnique({
+                where: { id: updatedConditionId },
+            })
+            if (!condition) {
+                throw new Error(PatientProfileError.CONDITION_NOT_FOUND)
+            }
+            return await this.prisma.healthRecordCondition.update({
+                where: {
+                    healthRecordId_conditionId: {
+                        conditionId,
+                        healthRecordId: patientId,
+                    },
+                },
+                data: {
+                    conditionId: updatedConditionId,
+                    note,
+                    severity,
+                    type,
+                    lastUpdatedById: doctorId,
                 },
             })
         } catch (error) {

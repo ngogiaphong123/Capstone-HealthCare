@@ -13,9 +13,11 @@ Table User {
   avatar String [not null]
   accessToken String
   refreshToken String
+  bio String
   role Role [not null, default: 'PATIENT']
   patient Patient
   doctor Doctor
+  manager Manager
   healthRecordConditions HealthRecordCondition [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
@@ -25,10 +27,16 @@ Table Patient {
   user User [not null]
   id String [pk]
   healthRecord HealthRecord
-  createdAt DateTime [default: `now()`, not null]
-  updatedAt DateTime [not null]
   appointments Appointment [not null]
-  prescriptions Prescription [not null]
+
+  indexes {
+    (id) [pk]
+  }
+}
+
+Table Manager {
+  user User [not null]
+  id String [pk]
 
   indexes {
     (id) [pk]
@@ -66,12 +74,14 @@ Table HealthRecordCondition {
   severity Severity [not null, default: 'LOW']
   note String [default: '']
   type ConditionType [not null]
+  from DateTime
+  to DateTime
   healthRecord HealthRecord [not null]
   healthRecordId String [not null]
   condition Condition [not null]
   conditionId String [not null]
-  user User [not null]
-  userId String [not null]
+  lastUpdatedBy User [not null]
+  lastUpdatedById String [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
 
@@ -93,6 +103,7 @@ Table MedicalSchool {
   id String [pk]
   name String [not null]
   abbr String [not null]
+  image String
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
   DoctorEducation DoctorEducation [not null]
@@ -137,9 +148,6 @@ Table Doctor {
   user User [not null]
   id String [unique, not null]
   appointments Appointment [not null]
-  prescriptions Prescription [not null]
-  createdAt DateTime [default: `now()`, not null]
-  updatedAt DateTime [not null]
   doctorEducations DoctorEducation [not null]
   doctorSpecialties DoctorSpecialty [not null]
 }
@@ -159,18 +167,17 @@ Table Appointment {
 }
 
 Table Prescription {
-  id String [pk]
   conclusion String [not null]
   note String [not null, default: '']
-  patient Patient [not null]
-  patientId String [not null]
-  doctor Doctor [not null]
-  doctorId String [not null]
   medicinePrescriptions MedicinePrescription [not null]
   appointment Appointment [not null]
-  appointmentId String [unique, not null]
+  appointmentId String [pk]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
+
+  indexes {
+    (appointmentId) [pk]
+  }
 }
 
 Table Medicine {
@@ -181,6 +188,7 @@ Table Medicine {
   uses String [not null]
   sideEffects String [not null]
   manufacturer String [not null]
+  capacity String
   medicinePrescriptions MedicinePrescription [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
@@ -204,6 +212,7 @@ Table MedicinePrescription {
 Enum Role {
   PATIENT
   DOCTOR
+  MANAGER
 }
 
 Enum Status {
@@ -233,7 +242,7 @@ Enum Degree {
   SECOND_DEGREE_SPECIALIST
   MASTER
   PHD
-  ASSIOCATE_PROFESSOR
+  ASSOCIATE_PROFESSOR
   PROFESSOR
 }
 
@@ -246,19 +255,21 @@ Enum ConditionType {
   OTHER
 }
 
-Ref: Patient.id - User.id
+Ref: Patient.id - User.id [delete: Cascade]
 
-Ref: HealthRecord.patientId - Patient.id
+Ref: Manager.id - User.id [delete: Cascade]
 
-Ref: HealthRecordCondition.healthRecordId > HealthRecord.patientId
+Ref: HealthRecord.patientId - Patient.id [delete: Cascade]
 
-Ref: HealthRecordCondition.conditionId > Condition.id
+Ref: HealthRecordCondition.healthRecordId > HealthRecord.patientId [delete: Cascade]
 
-Ref: HealthRecordCondition.userId > User.id
+Ref: HealthRecordCondition.conditionId > Condition.id [delete: Cascade]
+
+Ref: HealthRecordCondition.lastUpdatedById > User.id
 
 Ref: DoctorEducation.medicalSchoolId > MedicalSchool.id
 
-Ref: DoctorEducation.doctorId > Doctor.id
+Ref: DoctorEducation.doctorId > Doctor.id [delete: Cascade]
 
 Ref: DoctorEducation.specialtyId > Specialty.id
 
@@ -266,18 +277,14 @@ Ref: DoctorSpecialty.doctorId > Doctor.id
 
 Ref: DoctorSpecialty.specialtyId > Specialty.id
 
-Ref: Doctor.id - User.id
+Ref: Doctor.id - User.id [delete: Cascade]
 
 Ref: Appointment.patientId > Patient.id
 
 Ref: Appointment.doctorId > Doctor.id
 
-Ref: Prescription.patientId > Patient.id
-
-Ref: Prescription.doctorId > Doctor.id
-
 Ref: Prescription.appointmentId - Appointment.id
 
 Ref: MedicinePrescription.medicineId > Medicine.id
 
-Ref: MedicinePrescription.prescriptionId > Prescription.id
+Ref: MedicinePrescription.prescriptionId > Prescription.appointmentId
